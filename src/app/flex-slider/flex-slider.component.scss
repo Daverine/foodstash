@@ -1,0 +1,57 @@
+.carouselParent {
+    position: relative;
+    overflow: hidden;
+    ::ng-deep .flexCont {
+        display: flex;
+        width: 100%;
+        position: relative;
+        transition: 0s;
+    }
+
+    ::ng-deep .carouselItem {
+        margin-right: 10px;
+        // width: 25%;
+    }
+
+    ::ng-deep .prev,
+    ::ng-deep .next {
+        position: absolute;
+        top: 50%;
+        font-size: 26px;
+        color: #fff;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-weight: bold;
+        text-shadow: 2px 2px 5px #292929;
+    }
+
+    ::ng-deep .prev:hover,
+    ::ng-deep .next:hover {
+        color: var(--primary);
+    }
+
+    ::ng-deep .prev {
+        left: 0px;
+    }
+
+    ::ng-deep .next {
+        right: 0px;
+    }
+    ::ng-deep .indicators {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin-top: 16px;
+        .indicatorItem {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #21495033;
+            cursor: pointer;
+            &.activeInd {
+                background: var(--primary);
+            }
+        }
+    }
+}

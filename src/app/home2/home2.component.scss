@@ -1,0 +1,108 @@
+.marquee-text {
+    overflow: clip;
+}
+.marquee-text-track {
+    display: flex;
+    gap: 1.5rem;
+    padding-left: 1.5rem;
+    width: max-content;
+    animation: marquee-move-track 20s linear infinite;
+}
+
+@keyframes marquee-move-track {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    align-items: center;
+    justify-items: center;
+    gap: 1.5rem;
+    align-items: center;
+    justify-items: stretch;
+}
+
+.card {
+    display: flex;
+    flex-flow: column;
+    gap: 1rem;
+    background-color: var(--surface-v1);
+    padding: 2.5rem;
+    max-width: 20rem;
+    border-radius: var(--md-radius);
+}
+
+.testimonial {
+    display: flex;
+    flex-flow: column;
+    gap: 1em;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+    max-width: var(--container-sm);
+    border-radius: 0.5em;
+    padding: 2.5em;
+    background-color: var(--surface-v2);
+    width: 100%;
+    max-width: 31rem;
+
+    & > p {
+        font-size: var(--xl-size);
+        color: var(--on-surface-v1);
+    }
+
+    & > .person-id {
+        display: flex;
+        align-items: center;
+        gap: 1.5em;
+
+        & > .avatar {
+            width: 3.75rem;
+            height: 3.75rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        & > .label {
+            display: flex;
+            flex-flow: column;
+
+            & > .name {
+                font-size: var(--lg-size);
+                font-weight: var(--bold);
+            }
+
+            & > .title {
+                color: var(--on-surface-v1);
+            }
+        }
+    }
+}
+
+.collapsible-cont {
+    padding: 1.625em;
+    border-bottom: 1px solid var(--surface-v2);
+
+    & > header {
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--lg-size);
+        font-weight: var(--semibold);
+    }
+
+    & > p.body {
+        margin: 0;
+        text-align: left;
+        color: var(--on-surface-v1);
+
+        &:before {
+            content: "";
+            display: block;
+            padding-top: 1em;
+        }
+    }
+}

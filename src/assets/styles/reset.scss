@@ -1,0 +1,327 @@
+html {
+  font-family: sans-serif;
+  font-size: 16px;
+  text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  min-height: 100vh;
+}
+
+body {
+  height: auto;
+
+  &::before {
+		content: "";
+		display: table-cell;
+	}
+
+	&::after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+@media screen and (max-width: 400px) {
+  @-ms-viewport {
+    width: device-width;
+  }
+}
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+
+audio,
+canvas,
+progress,
+video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+[hidden],
+template {
+  display: none;
+}
+
+a {
+  background-color: transparent;
+}
+
+a:active,
+a:hover {
+  outline: 0;
+}
+
+abbr[title],
+acronym[title] {
+  cursor: default;
+  text-decoration: underline dotted;
+}
+
+b,
+strong {
+  font-weight: bold;
+}
+
+dfn {
+  font-style: italic;
+}
+
+mark {
+  background: #ff0;
+  color: #000;
+}
+
+small {
+  font-size: 0.8em;
+}
+
+sub,
+sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.5em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+ins {
+  text-decoration: underline;
+}
+
+del {
+  text-decoration: line-through;
+}
+
+img {
+  border: 0;
+}
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+img,
+svg,
+canvas {
+  flex: 0 0 auto;
+}
+
+figure {
+  margin: 1em 40px;
+}
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+}
+
+pre {
+  word-break: break-all;
+  word-wrap: break-word;
+  overflow: auto;
+}
+
+code,
+kbd,
+pre,
+samp,
+.code,
+.kbd,
+.pre,
+.samp {
+  font-family: Monaco, Menlo, "source-code-pro", Consolas, monospace, "Ubuntu Mono";
+  font-size: 0.95em;
+}
+
+address {
+  font-style: normal;
+  text-decoration: none;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+// -- added by A. Folorunso
+textarea,
+select[multiple],
+select[size] {
+	height: auto;
+}
+
+textarea {
+	overflow: auto;
+	min-height: 50px;
+}
+
+input[type=file],
+input[type=range] {
+	width: auto;
+	max-width: 100%;
+}
+
+// -- end of added code
+
+button {
+  overflow: visible;
+}
+
+button,
+select {
+  text-transform: none;
+}
+
+button,
+html input[type=button],
+input[type=reset],
+input[type=submit] {
+  -webkit-appearance: button;
+  cursor: pointer;
+}
+
+button[disabled],
+html input[disabled] {
+  cursor: default;
+}
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+input {
+  line-height: normal;
+}
+
+input[type=checkbox],
+input[type=radio] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+input[type=checkbox]:not(:disabled),
+input[type=radio]:not(:disabled) {
+  cursor: pointer;
+}
+
+input[type=text],
+input[type=email],
+input[type=search],
+input[type=password],
+textarea {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+input[type=number]:not(:hover):not(:focus) {
+  -moz-appearance: textfield;
+}
+
+input[type=number]:hover,
+input[type=number]:focus {
+	-moz-appearance: spinner-textfield;
+}
+
+input[type=search] {
+  -webkit-appearance: textfield;
+}
+
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+fieldset {
+  border-radius: 0px;
+}
+
+legend {
+  font: inherit;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+label {
+  cursor: default;
+}
+
+label[for] {
+  cursor: pointer;
+}
+
+textarea {
+  overflow: auto;
+}
+
+optgroup {
+  font-weight: bold;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td,
+th {
+  padding: 0;
+}
+
+:focus-visible {
+  outline: 2px dashed #555;
+}

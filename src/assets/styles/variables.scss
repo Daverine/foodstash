@@ -1,0 +1,133 @@
+// Media Query Ranges
+$small-screen: 480px;
+$medium-screen: 730px;
+$large-screen: 960px;
+$xlarge-screen: 1200px;
+$small-and-up: "only screen and (min-width: #{$small-screen})";
+$medium-and-up: "only screen and (min-width : #{$medium-screen})";
+$large-and-up: "only screen and (min-width : #{$large-screen})";
+$xlarge-and-up: "only screen and (min-width : #{$xlarge-screen})";
+$small-and-down: "only screen and (max-width : #{$small-screen - 1px})";
+$medium-and-down: "only screen and (max-width : #{$medium-screen - 1px})";
+$large-and-down: "only screen and (max-width : #{$large-screen - 1px})";
+$xlarge-and-down: "only screen and (max-width: #{$xlarge-screen - 1px})";
+$medium-only: "only screen and (min-width : #{$small-screen + 100px}) and (max-width : #{$large-screen - 1px})";
+$large-only: "only screen and (min-width : #{$medium-screen + 100px}) and (max-width : #{$xlarge-screen - 1px})";
+
+@mixin light-mode() {
+    --color-scheme: light;
+
+    --primary: #e29417;
+    --primary-solid: #f84419;
+    --secondary: #31b55d;
+    --secondary-solid: #04830b;
+    
+    --surface: #fff;
+    --surface-v1: #f2f2f2;
+    --surface-v2: #e3e3e3;
+    
+    --on-surface: #121316;
+    --on-surface-v1: #555555;
+    --on-surface-v2: #aeabab;
+    
+    --surface-invert: #121316;
+    --on-surface-invert: #b3b2c0;
+
+    --outline: var(--surface-v2);
+}
+
+@mixin dark-mode() {
+    --color-scheme: light;
+
+    --primary: #e29417;
+    --primary-solid: #f84419;
+    --secondary: #31b55d;
+    --secondary-solid: #04830b;
+    
+    --surface: #fff;
+    --surface-v1: #f2f2f2;
+    --surface-v2: #e3e3e3;
+    
+    --on-surface: #121316;
+    --on-surface-v1: #555555;
+    --on-surface-v2: #aeabab;
+    
+    --surface-invert: #121316;
+    --on-surface-invert: #b3b2c0;
+
+    --outline: var(--surface-v2);
+}
+
+@media screen and (prefers-color-scheme: light) {
+	:root {
+		@include light-mode();
+	}
+}
+
+@media screen and (prefers-color-scheme: dark) {
+	:root {
+		@include dark-mode();
+	}
+}
+
+.light-mode {
+	@include light-mode();
+}
+
+.dark-mode {
+	@include dark-mode();
+}
+
+:root {
+    --base-size: 16px;
+
+    --xs-size: 0.75rem;
+    --sm-size: 0.875rem;
+    --md-size: 1rem;
+    --lg-size: 1.125rem;
+    --xl-size: 1.25rem;
+    
+    --mega-size: 6.875rem;
+
+    --h1-size: 3.5rem;
+    --h2-size: 3.125rem;
+    --h3-size: 2.25rem;
+    --h4-size: 1.75rem;
+    --h5-size: 1.5rem;
+    --h6-size: 1.25rem;
+    
+    --heading-size: 1.125rem;
+  
+    --bold: 700;
+    --semibold: 500;
+    --normal: 400;
+  
+    --container: 90rem;
+    --container-v1: 43.75rem;
+    --container-v2: 31.25rem;
+    --container-v3: 22.5rem;
+    --container-v4: 20.875rem;
+    --container-v5: 15rem;
+  
+    --md-radius: 1rem;
+    --sm-radius: 0.5rem;
+    --comp-radius: 6.25rem;
+
+    // z-indexes
+	--z-level-5: 9999;
+	--z-level-4: 9000;
+	--z-level-3: 8000;
+	--z-level-2: 7000;
+	--z-level-1: 6000;
+
+    --scrim-opacity: 0.7;
+
+	// state opacity
+	--hover-state: 0.08;
+	--focus-state: 0.08;
+	--press-state: 0.125;
+	--drag-state: 0.2;
+
+	--block-margin: 1em;
+	--inline-margin: 0.5em;
+}
