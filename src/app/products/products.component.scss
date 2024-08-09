@@ -3,6 +3,8 @@
     align-self: stretch;
     display: flex;
     position: relative;
+    background-repeat: no-repeat;
+    background-size: cover;
 
     &::before {
         content: "";
@@ -16,8 +18,6 @@
     }
 
     & > .content { position: relative; }
-    // background-image: url('../../../public/images/img5.png');
-// background: url('images/img5.png') lightgray -175.197px 0px / 226.328% 100% no-repeat;
 }
 
 .secondhero {
