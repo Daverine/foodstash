@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, OnDestroy, Component, ElementRef, Input } from '@angular/core';
 import { utils } from '../../assets/js/utils';
 
 @Component({
@@ -7,9 +7,16 @@ import { utils } from '../../assets/js/utils';
   imports: [],
   templateUrl: './carousel.component.html',
   styleUrl: './carousel.component.scss',
+  host: {
+    class: 'carousel',
+  }
 })
-export class CarouselComponent implements AfterViewInit {
-  @ViewChild('carousel') carousel: ElementRef;
+export class CarouselComponent implements AfterViewInit, OnDestroy {
+  constructor(private el: ElementRef) {
+    Object.keys(this.m).forEach(el => this.m[el] = this.m[el].bind(this));
+  }
+
+  carousel;
   viewbox;
   slider;
   slides;
@@ -18,12 +25,15 @@ export class CarouselComponent implements AfterViewInit {
   tracker;
   prevBtn;
   nextBtn;
+  settings;
+  uniqueId;
+  initialized;
 
   factory = {
     namespace: 'carousel',
     continuous: true, // can also be set to string 'rewind'
     slidesPerView: 1,
-    sliderMove: 'slide',
+    sliderMove: 'slide', // can also be page to move all the slide in a view out on next or prev
     spaceBetween: '0.5rem',
     breakpoints: [],
     // breakpoints: [
@@ -47,7 +57,7 @@ export class CarouselComponent implements AfterViewInit {
     slidesHeight: 'auto', // can also be 'inherit'
     transitionDuration: 500,
     autoslide: true,
-    autoslideInterval: 5000,
+    autoslideInterval: 15000,
     pauseOnHover: true,
     imageZoom: true,
     videoAutoPlay: false,
@@ -80,9 +90,150 @@ export class CarouselComponent implements AfterViewInit {
     stopAutoslider: undefined,
   };
 
-  settings;
-  uniqueId;
-  initialized;
+  m = {
+    sizeResponse() {
+      this.changeInSlides.disconnect();
+      this.m.stopAutoslider();
+      let mediaWidth = window.innerWidth;
+      let matchedBreakpoints = this.settings.breakpoints.filter(el => (el.minWidth || el.maxWidth) && (!el.minWidth || el.minWidth <= mediaWidth) && (!el.maxWidth || el.maxWidth >= mediaWidth));
+      // sort breakpoints by maxWidth and then select the first breakpoint or sort breakpoints by minWidth and then select the first breakpoint
+      let breakpoint = matchedBreakpoints.filter(el => el.maxWidth).sort((a, b) => Number(a.maxWidth) - Number(b.maxWidth))[0] || matchedBreakpoints.filter(el => el.minWidth).sort((a, b) => Number(b.minWidth) - Number(a.minWidth))[0];
+      if (breakpoint) this.init(breakpoint);
+      else this.init();
+      this.changeInSlides.observe(this.carousel, {subtree: true, childList: true,});
+    },
+    gestureStart(e) {
+      if (this.tmp.slidesNo <= 1) return; // stop gesture if total number of slides is one or less;
+  
+      if (this.settings.autoslide) this.m.stopAutoslider();
+  
+      // save gesture time start to know gesture duration
+      this.tmp.gT = new Date().getTime();
+  
+      // save the initial value of bb.newCoord to have it accessable when the move-gesture event is triggered. (That's because the newCoord value might change during the event)
+      this.tmp.initCoord = this.tmp.newCoord;
+      this.tmp.startCoord = this.dist(e);
+      this.tmp.coordChange = false;
+      this.tmp.endCoord = this.tmp.startCoord; // set the initial endCoord to the startpoint coord;
+  
+      // Swiping
+      this.slider.classList.add('swiping');
+  
+      if (e.type === 'touchstart') {
+        document.addEventListener('touchmove', this.m.gestureMove);
+        document.addEventListener('touchend', this.m.gestureEnd);
+      }
+      else if (e.type === 'mousedown') {
+        document.addEventListener('mousemove', this.m.gestureMove);
+        document.addEventListener('mouseup', this.m.gestureEnd);
+      }
+    },
+    gestureMove(e) {
+      this.tmp.gsDir = this.tmp.endCoord > this.dist(e) ? 1 : this.tmp.endCoord < this.dist(e) ? -1 : this.tmp.gsDir;
+      this.tmp.endCoord = this.dist(e);
+      if (Math.abs(this.tmp.endCoord - this.tmp.startCoord) > 5 && !this.tmp.coordChange) this.tmp.coordChange = true;
+  
+      // Swipping in action
+      if (this.tmp.coordChange) {
+        this.tmp.newCoord = this.tmp.initCoord + this.tmp.endCoord - this.tmp.startCoord + (this.tmp.gsmScale * Math.abs(this.tmp.minExt));
+  
+        if (this.settings.continuous && this.settings.continuous !== 'rewind') {
+          if (this.tmp.gsDir === 1 && this.tmp.newCoord < this.tmp.maxExt) this.tmp.gsmScale += 1;
+          else if (this.tmp.gsDir === -1 && this.tmp.newCoord > this.tmp.minExt) this.tmp.gsmScale -= 1;
+          this.tmp.newCoord = this.tmp.initCoord + this.tmp.endCoord - this.tmp.startCoord + (this.tmp.gsmScale * Math.abs(this.tmp.minExt));
+        }
+  
+        this.slider.style.transform = `translateX(${this.tmp.newCoord}px)`;
+      }
+    },
+    gestureEnd(e) {
+      if (e.type === 'touchend') {
+        document.removeEventListener('touchmove', this.m.gestureMove);
+        document.removeEventListener('touchend', this.m.gestureEnd);
+      }
+      else {
+        document.removeEventListener('mousemove', this.m.gestureMove);
+        document.removeEventListener('mouseup', this.m.gestureEnd);
+      }
+  
+      this.tmp.gsDir = 0; // reset gesture move direction
+      this.tmp.gsmScale = 0; // reset gesture move scale offset calculation
+  
+      if (this.slider.classList.contains('swiping') && this.tmp.coordChange) {
+        let
+          xChange = this.tmp.endCoord - this.tmp.startCoord,
+          sChange = Math.abs(xChange / this.tmp.slideExt);
+  
+        if (Math.abs(xChange) > this.tmp.slideExt / 3 || (Math.abs(xChange) > this.tmp.slideExt / 20 && new Date().getTime() - this.tmp.gT < 300)) {
+          this.slider.classList.remove('swiping');
+          sChange = (this.settings.continuous)
+            ? Math.ceil(sChange) > this.tmp.slidesNo
+              ? Math.ceil(sChange) % this.tmp.slidesNo
+              : Math.ceil(sChange)
+            : Math.ceil(sChange);
+          this.update(this.tmp.slideNo + ((xChange > 0) ? -sChange : sChange));
+        }
+        else {
+          this.tmp.newCoord = this.tmp.initCoord + this.tmp.endCoord - this.tmp.startCoord;
+          this.slider.style.transform = `translateX(${this.tmp.newCoord}px)`;
+          setTimeout(() => {
+            this.slider.classList.remove('swiping');
+            this.update(this.tmp.slideNo);
+          }, 20);
+        }
+      }
+      else {
+        this.slider.classList.remove('swiping'); // Do this to ensure the swiping class is removed if added by event emulation
+        this.update(this.tmp.slideNo);
+      }
+  
+      if (this.settings.pauseOnHover && this.slider.contains(e.target) && e.type !== 'touchend') return;
+      if (this.settings.autoslide) this.m.startAutoslider();
+    },
+    prevSlides() {
+      let newI = this.tmp.slideNo - (this.settings.sliderMove === 'page' ? this.tmp.slidesPerView : 1);
+  
+      if ((this.settings.continuous && this.settings.continuous !== 'rewind') && newI < 1) {
+        this.slider.classList.add('ghost-walk');
+        this.slider.style.transform = `translateX(${this.tmp.newCoord + this.tmp.minExt}px)`;
+        setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
+      }
+      setTimeout(() => this.update(newI), 20);
+      this.m.startAutoslider();
+    },
+    nextSlides() {
+      let newI = this.tmp.slideNo + (this.settings.sliderMove === 'page' ? this.tmp.slidesPerView : 1);
+  
+      if ((this.settings.continuous && this.settings.continuous !== 'rewind') && newI > this.tmp.slidesNo) {
+        this.slider.classList.add('ghost-walk');
+        this.slider.style.transform = `translateX(${this.tmp.newCoord - this.tmp.minExt}px)`;
+        setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
+      }
+      setTimeout(() => this.update(newI), 20);
+      this.m.startAutoslider();
+    },
+    trackControl(e) {
+      let track = e.target.closest('button.track');
+      if (track) this.update(Number(track.getAttribute('data-trackid')));
+    },
+    startAutoslider() {
+      if (this.slider.classList.contains('swiping')) return;
+      this.m.stopAutoslider();
+      this.tmp.autoslider = setInterval(() => {
+        let newI = this.tmp.slideNo + (this.settings.sliderMove === 'page' ? this.tmp.slidesPerView : 1);
+  
+        if ((this.settings.continuous && this.settings.continuous !== 'rewind') && newI > this.tmp.slidesNo) {
+          this.slider.classList.add('ghost-walk');
+          this.slider.style.transform = `translateX(${this.tmp.newCoord - this.tmp.minExt}px)`;
+          setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
+        }
+        setTimeout(() => this.update(newI), 20);
+      }, this.settings.autoslideInterval);
+    },
+    stopAutoslider() {
+      clearInterval(this.tmp.autoslider);
+    },
+  }; // method used for events
 
   @Input() options;
 
@@ -93,38 +244,53 @@ export class CarouselComponent implements AfterViewInit {
 		};
 		this.uniqueId = utils.getUniqueId(this.settings.namespace);
 
-    let carousel = this.carousel.nativeElement;
-    this.viewbox = carousel.querySelector('.cs-viewbox');
-    this.slider = carousel.querySelector('.cs-slider');
+    this.carousel = this.el.nativeElement;
+    this.viewbox = this.carousel.querySelector(':scope > .cs-viewbox');
+    this.slider = this.viewbox.querySelector(':scope > .cs-slider');
 
-    this.prevBtn = carousel.querySelector('.cs-prev');
-    this.nextBtn = carousel.querySelector('.cs-next');
-    this.tracker = carousel.querySelector('.cs-tracker');
+    this.prevBtn = this.carousel.querySelector('.cs-prev');
+    this.nextBtn = this.carousel.querySelector('.cs-next');
+    this.tracker = this.carousel.querySelector('.cs-tracker');
 
 		this.slider.style.transitionDuration = `${this.settings.transitionDuration}ms`;
 		this.slider.setAttribute('data-anim', this.settings.animation);
 
-    this.tmp.sizeResponse = this.sizeResponse.bind(this);
-    this.tmp.gestureMove = this.gestureMove.bind(this);
-    this.tmp.gestureEnd = this.gestureEnd.bind(this);
-    this.tmp.stopAutoslider = this.stopAutoslider.bind(this);
+    if (!this.slider) {
+      console.error("An important element is missing in a carousel.");
+      return;
+    }
 
     // Use mouse wheel to zoom image
 		// this.slider.addEventListener('wheel', this.mouseWheel);
 
-		// Gesture control on carousel
 		this.slider.ondragstart = () => false; // prevent browser from hijacking swiping process
+		this.slider.addEventListener('mousedown', this.m.gestureStart);
+		this.slider.addEventListener('touchstart', this.m.gestureStart);
+
 		if (this.settings.autoslide && this.settings.pauseOnHover) {
-			this.slider.addEventListener('mouseenter', this.tmp.stopAutoslider);
-			this.slider.addEventListener('mouseleave', () => {
-				if (this.slider.classList.contains('swiping')) return;
-				this.startAutoslider();
-			});
+			this.slider.addEventListener('mouseenter', this.m.stopAutoslider);
+			this.slider.addEventListener('mouseleave', this.m.startAutoslider);
 		}
 
+    // navigator control on carousel
+		if (this.prevBtn) this.prevBtn.addEventListener('click', this.m.prevSlides);
+		if (this.nextBtn) this.nextBtn.addEventListener('click', this.m.nextSlides);
+
+    // slide track control on carousel
+		if (this.tracker) this.tracker.addEventListener('click', this.m.trackControl);
+
 		// responsiveness
-		window.addEventListener('resize', this.tmp.sizeResponse);
-		this.sizeResponse();
+		window.addEventListener('resize', this.m.sizeResponse);
+    this.m.sizeResponse();
+  }
+
+  changeInSlides = new MutationObserver(() => {
+    console.log('i got here');
+    this.m.sizeResponse();
+  });
+
+  ngOnDestroy() {
+    window.removeEventListener('resize', this.m.sizeResponse);
   }
 
   init(aBreakpoint = {}) {
@@ -142,7 +308,7 @@ export class CarouselComponent implements AfterViewInit {
 
     // Initialize carousel
     if (!this.initialized || this.tmp.slidesNo !== this.slides.length) {
-      [...this.carousel.nativeElement.querySelectorAll(`:scope [data-creator='${this.uniqueId}']`)].forEach(el => el.remove());
+      [...this.carousel.querySelectorAll(`:scope [data-creator='${this.uniqueId}']`)].forEach(el => el.remove());
       this.slides.forEach((el, index) => {
         el.setAttribute('data-csId', index + 1);
         let track = document.createElement('button');
@@ -186,133 +352,10 @@ export class CarouselComponent implements AfterViewInit {
     }
 
     this.update();
-    if (this.settings.autoslide) this.startAutoslider();
-  }
-  sizeResponse() {
-    this.stopAutoslider();
-    let mediaWidth = window.innerWidth;
-    let matchedBreakpoints = this.settings.breakpoints.filter(el => (el.minWidth || el.maxWidth) && (!el.minWidth || el.minWidth <= mediaWidth) && (!el.maxWidth || el.maxWidth >= mediaWidth));
-    // sort breakpoints by maxWidth and then select the first breakpoint or sort breakpoints by minWidth and then select the first breakpoint
-    let breakpoint = matchedBreakpoints.filter(el => el.maxWidth).sort((a, b) => Number(a.maxWidth) - Number(b.maxWidth))[0] || matchedBreakpoints.filter(el => el.minWidth).sort((a, b) => Number(b.minWidth) - Number(a.minWidth))[0];
-    if (breakpoint) this.init(breakpoint);
-    else this.init();
+    if (this.settings.autoslide) this.m.startAutoslider();
   }
   dist(e) {
     return e.type.indexOf("touch") > -1 ? e.touches[0].pageX : e.clientX;
-  }
-  gestureStart(e) {
-    if (this.tmp.slidesNo <= 1) return; // stop gesture if total number of slides is one or less;
-
-    if (this.settings.autoslide) this.stopAutoslider();
-
-    // save gesture time start to know gesture duration
-    this.tmp.gT = new Date().getTime();
-
-    // save the initial value of bb.newCoord to have it accessable when the move-gesture event is triggered. (That's because the newCoord value might change during the event)
-    this.tmp.initCoord = this.tmp.newCoord;
-    this.tmp.startCoord = this.dist(e);
-    this.tmp.coordChange = false;
-    this.tmp.endCoord = this.tmp.startCoord; // set the initial endCoord to the startpoint coord;
-
-    // Swiping
-    this.slider.classList.add('swiping');
-
-    if (e.type === 'touchstart') {
-      document.addEventListener('touchmove', this.tmp.gestureMove);
-      document.addEventListener('touchend', this.tmp.gestureEnd);
-    }
-    else if (e.type === 'mousedown') {
-      document.addEventListener('mousemove', this.tmp.gestureMove);
-      document.addEventListener('mouseup', this.tmp.gestureEnd);
-    }
-  }
-  gestureMove(e) {
-    this.tmp.gsDir = this.tmp.endCoord > this.dist(e) ? 1 : this.tmp.endCoord < this.dist(e) ? -1 : this.tmp.gsDir;
-    this.tmp.endCoord = this.dist(e);
-    if (Math.abs(this.tmp.endCoord - this.tmp.startCoord) > 5 && !this.tmp.coordChange) this.tmp.coordChange = true;
-
-    // Swipping in action
-    if (this.tmp.coordChange) {
-      this.tmp.newCoord = this.tmp.initCoord + this.tmp.endCoord - this.tmp.startCoord + (this.tmp.gsmScale * Math.abs(this.tmp.minExt));
-
-      if (this.settings.continuous && this.settings.continuous !== 'rewind') {
-        if (this.tmp.gsDir === 1 && this.tmp.newCoord < this.tmp.maxExt) this.tmp.gsmScale += 1;
-        else if (this.tmp.gsDir === -1 && this.tmp.newCoord > this.tmp.minExt) this.tmp.gsmScale -= 1;
-        this.tmp.newCoord = this.tmp.initCoord + this.tmp.endCoord - this.tmp.startCoord + (this.tmp.gsmScale * Math.abs(this.tmp.minExt));
-      }
-
-      this.slider.style.transform = `translateX(${this.tmp.newCoord}px)`;
-    }
-  }
-  gestureEnd(e) {
-    if (e.type === 'touchend') {
-      document.removeEventListener('touchmove', this.tmp.gestureMove);
-      document.removeEventListener('touchend', this.tmp.gestureEnd);
-    }
-    else {
-      document.removeEventListener('mousemove', this.tmp.gestureMove);
-      document.removeEventListener('mouseup', this.tmp.gestureEnd);
-    }
-
-    this.tmp.gsDir = 0; // reset gesture move direction
-    this.tmp.gsmScale = 0; // reset gesture move scale offset calculation
-
-    if (this.slider.classList.contains('swiping') && this.tmp.coordChange) {
-      let
-        xChange = this.tmp.endCoord - this.tmp.startCoord,
-        sChange = Math.abs(xChange / this.tmp.slideExt);
-
-      if (Math.abs(xChange) > this.tmp.slideExt / 3 || (Math.abs(xChange) > this.tmp.slideExt / 20 && new Date().getTime() - this.tmp.gT < 300)) {
-        this.slider.classList.remove('swiping');
-        sChange = (this.settings.continuous)
-          ? Math.ceil(sChange) > this.tmp.slidesNo
-            ? Math.ceil(sChange) % this.tmp.slidesNo
-            : Math.ceil(sChange)
-          : Math.ceil(sChange);
-        this.update(this.tmp.slideNo + ((xChange > 0) ? -sChange : sChange));
-      }
-      else {
-        this.tmp.newCoord = this.tmp.initCoord + this.tmp.endCoord - this.tmp.startCoord;
-        this.slider.style.transform = `translateX(${this.tmp.newCoord}px)`;
-        setTimeout(() => {
-          this.slider.classList.remove('swiping');
-          this.update(this.tmp.slideNo);
-        }, 20);
-      }
-    }
-    else {
-      this.slider.classList.remove('swiping'); // Do this to ensure the swiping class is removed if added by event emulation
-      this.update(this.tmp.slideNo);
-    }
-
-    if (this.settings.pauseOnHover && this.slider.contains(e.target) && e.type !== 'touchend') return;
-    if (this.settings.autoslide) this.startAutoslider();
-  }
-  prevSlides() {
-    let newI = this.tmp.slideNo - (this.settings.sliderMove === 'page' ? this.tmp.slidesPerView : 1);
-
-    if ((this.settings.continuous && this.settings.continuous !== 'rewind') && newI < 1) {
-      this.slider.classList.add('ghost-walk');
-      this.slider.style.transform = `translateX(${this.tmp.newCoord + this.tmp.minExt}px)`;
-      setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
-    }
-    setTimeout(() => this.update(newI), 20);
-    this.startAutoslider();
-  }
-  nextSlides() {
-    let newI = this.tmp.slideNo + (this.settings.sliderMove === 'page' ? this.tmp.slidesPerView : 1);
-
-    if ((this.settings.continuous && this.settings.continuous !== 'rewind') && newI > this.tmp.slidesNo) {
-      this.slider.classList.add('ghost-walk');
-      this.slider.style.transform = `translateX(${this.tmp.newCoord - this.tmp.minExt}px)`;
-      setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
-    }
-    setTimeout(() => this.update(newI), 20);
-    this.startAutoslider();
-  }
-  trackControl(e) {
-    let track = e.target.closest('button.track');
-    if (track) this.update(Number(track.getAttribute('data-trackid')));
   }
   update(newI = this.tmp.slideNo) {
     let sBleed = (this.settings.continuous && this.settings.continuous !== 'rewind') ? this.tmp.slidesNo * this.tmp.slideExt : 0;
@@ -369,21 +412,5 @@ export class CarouselComponent implements AfterViewInit {
     track.classList.add('active');
     [...this.tracker.children].filter((el) => el != track).forEach((el) => el.classList.remove('active'));
     this.tmp.coordChange = false;
-  }
-  startAutoslider() {
-    this.stopAutoslider();
-    this.tmp.autoslider = setInterval(() => {
-      let newI = this.tmp.slideNo + (this.settings.sliderMove === 'page' ? this.tmp.slidesPerView : 1);
-
-      if ((this.settings.continuous && this.settings.continuous !== 'rewind') && newI > this.tmp.slidesNo) {
-        this.slider.classList.add('ghost-walk');
-        this.slider.style.transform = `translateX(${this.tmp.newCoord - this.tmp.minExt}px)`;
-        setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
-      }
-      setTimeout(() => this.update(newI), 20);
-    }, this.settings.autoslideInterval);
-  }
-  stopAutoslider() {
-    clearInterval(this.tmp.autoslider);
   }
 }

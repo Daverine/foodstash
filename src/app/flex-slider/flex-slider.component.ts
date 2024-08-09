@@ -22,7 +22,6 @@ import {
   templateUrl: './flex-slider.component.html',
   styleUrls: ['./flex-slider.component.scss'],
 })
-
 export class FlexSliderComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('carouselParent') carouselParent: ElementRef;
   flexCont: HTMLElement;
@@ -98,6 +97,15 @@ export class FlexSliderComponent implements OnInit, AfterViewInit, OnDestroy {
           let curitems = this.flexCont.querySelectorAll('.carouselItem');
           let preserve = curitems.length > this.slideItems.length;
           this.cloneCtrl(false);
+          this.indicators =
+          this.carouselParent.nativeElement.querySelectorAll('.indicatorItem');
+          if (this.indicators.length) {
+            this.indicators.forEach((el, i) => {
+              el.onclick = () => {
+                this.indicatorSlide(i);
+              };
+            });
+          }
           this.genSlideNo(this.showSlideNo, preserve);
         });
         this.responsive();

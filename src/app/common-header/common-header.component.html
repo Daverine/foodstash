@@ -27,7 +27,7 @@
 <hr />
 <div class="menu">
   <div class="container items">
-    <div class="xhover item">
+    <a routerLink="/" class="xhover item">
       <svg
         width="151"
         height="33"
@@ -137,7 +137,7 @@
           fill="#31B55D"
         />
       </svg>
-    </div>
+    </a>
     <div class="xhover item adaptable" style="max-width: 440px">
       <input
         type="search"
@@ -182,11 +182,11 @@
 <div class="basic menu">
   <div class="items container">
     <div class="item">Categories</div>
-    <div class="item">Products</div>
+    <a routerLink="/products" routerLinkActive="active" class="item">Products</a>
     <div class="item">Combos</div>
     <div class="item">About us</div>
     <div class="item">Contact us</div>
-    <div class="item r-aligned">
+    <div class="item xhover r-aligned">
       <button
         class="button"
         style="--bg-color: var(--secondary-solid); --text-color: var(--surface)"

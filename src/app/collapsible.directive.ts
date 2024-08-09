@@ -5,8 +5,10 @@ import { AfterViewInit, Directive, ElementRef, HostListener } from '@angular/cor
 	standalone: true,
 })
 export class CollapsibleDirective implements AfterViewInit {
-	constructor(private el: ElementRef) {}
-
+	constructor(private el: ElementRef) {
+		
+	};
+	
 	ngAfterViewInit(): void {
 		let el = this.el.nativeElement;
 
