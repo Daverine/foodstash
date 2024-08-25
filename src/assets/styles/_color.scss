@@ -1,0 +1,60 @@
+.primary {
+  --bg-color: var(--primary) !important;
+  --text-color: var(--surface) !important;
+  --bd-color: var(--primary) !important;
+}
+.secondary {
+  --bg-color: var(--secondary) !important;
+  --text-color: var(--surface) !important;
+  --bd-color: var(--secondary) !important;
+}
+
+.primary-text {
+  color: var(--primary) !important;
+}
+.secondary-text {
+  color: var(--secondary) !important;
+}
+.error-text {
+  color: var(--error) !important;
+}
+.warning-text {
+  color: var(--warning) !important;
+}
+.success-text {
+  color: var(--success) !important;
+}
+.text-color {
+    color: var(--on-surface) !important;
+}
+.text-v1-color {
+    color: var(--on-surface-v1) !important;
+}
+.text-v2-color {
+    color: var(--on-surface-v2) !important;
+}
+.on-surface-aux {
+  color: var(--on-surface-v1) !important;
+}
+.surface-text {
+  color: var(--surface) !important;
+}
+
+.surface-bg {
+    background-color: var(--surface);
+}
+.surface-v1-bg {
+    background-color: var(--surface-v1);
+}
+.surface-v2-bg {
+    background-color: var(--surface-v2);
+}
+.primary-bg {
+  background-color: var(--primary) !important;
+}
+.secondary-bg {
+  color: var(--secondary) !important;
+}
+.transparent-bg {
+  background-color: transparent !important;
+}

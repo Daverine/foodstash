@@ -1,17 +1,18 @@
-import { AfterViewInit, OnDestroy, Component, ElementRef, Input } from '@angular/core';
+import { Component, ElementRef, Input } from '@angular/core';
 import { utils } from '../../assets/js/utils';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-carousel',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './carousel.component.html',
   styleUrl: './carousel.component.scss',
   host: {
     class: 'carousel',
   }
 })
-export class CarouselComponent implements AfterViewInit, OnDestroy {
+export class CarouselComponent {
   constructor(private el: ElementRef) {
     Object.keys(this.m).forEach(el => this.m[el] = this.m[el].bind(this));
   }
@@ -26,11 +27,12 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
   prevBtn;
   nextBtn;
   settings;
-  uniqueId;
   initialized;
+  uniqueId;
 
   factory = {
     namespace: 'carousel',
+    autoSetup: true,
     continuous: true, // can also be set to string 'rewind'
     slidesPerView: 1,
     sliderMove: 'slide', // can also be page to move all the slide in a view out on next or prev
@@ -52,18 +54,19 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
     // ],
     animation: 'slide',
     direction: 'horizontal',
+    autoCreateTracker: false,
     track: 'default', // can also be the following: 'thumbnails', 'scroll'.
     trackView: 'slide',
-    slidesHeight: 'auto', // can also be 'inherit'
     transitionDuration: 500,
     autoslide: true,
-    autoslideInterval: 15000,
+    autoslideInterval: 5000,
     pauseOnHover: true,
     imageZoom: true,
     videoAutoPlay: false,
     videoMute: true,
     controllable: true
   };
+
         
   tmp = {
     newCoord: 0,
@@ -199,7 +202,7 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
         setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
       }
       setTimeout(() => this.update(newI), 20);
-      this.m.startAutoslider();
+      if (this.tmp.autosliding) this.m.startAutoslider();
     },
     nextSlides() {
       let newI = this.tmp.slideNo + (this.settings.sliderMove === 'page' ? this.tmp.slidesPerView : 1);
@@ -210,11 +213,15 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
         setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
       }
       setTimeout(() => this.update(newI), 20);
-      this.m.startAutoslider();
+      if (this.tmp.autosliding) this.m.startAutoslider();
     },
     trackControl(e) {
-      let track = e.target.closest('button.track');
-      if (track) this.update(Number(track.getAttribute('data-trackid')));
+      let track = e.target.closest('.cs-tracker');
+      
+      if (track) {
+        this.update(Number(track.getAttribute('data-trackid')));
+        if (this.tmp.autosliding) this.m.startAutoslider();
+      }
     },
     startAutoslider() {
       if (this.slider.classList.contains('swiping')) return;
@@ -229,28 +236,35 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
         }
         setTimeout(() => this.update(newI), 20);
       }, this.settings.autoslideInterval);
+      this.tmp.autosliding = true;
     },
     stopAutoslider() {
       clearInterval(this.tmp.autoslider);
+      this.tmp.autosliding = false;
     },
   }; // method used for events
 
   @Input() options;
 
-  ngAfterViewInit() {
+  ngOnInit() {
     this.settings = {
 			...this.factory,
 			...this.options || {}
 		};
-		this.uniqueId = utils.getUniqueId(this.settings.namespace);
 
+		this.uniqueId = utils.getUniqueId(this.settings.namespace);
+  }
+
+  ngAfterViewInit() {
     this.carousel = this.el.nativeElement;
     this.viewbox = this.carousel.querySelector(':scope > .cs-viewbox');
+
+    if (!this.viewbox) return;
     this.slider = this.viewbox.querySelector(':scope > .cs-slider');
 
-    this.prevBtn = this.carousel.querySelector('.cs-prev');
-    this.nextBtn = this.carousel.querySelector('.cs-next');
-    this.tracker = this.carousel.querySelector('.cs-tracker');
+    this.prevBtn = this.carousel.querySelector(':scope .cs-prev');
+    this.nextBtn = this.carousel.querySelector(':scope .cs-next');
+    this.tracker = this.carousel.querySelector(':scope .cs-trackers');
 
 		this.slider.style.transitionDuration = `${this.settings.transitionDuration}ms`;
 		this.slider.setAttribute('data-anim', this.settings.animation);
@@ -298,10 +312,10 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
       ...{
         slidesPerView: this.settings.slidesPerView,
         spaceBetween: this.settings.spaceBetween,
-        slidesHeight: this.settings.slidesHeight
       },
       ...aBreakpoint
     };
+    this.slider.classList.add('ghost-walk');
     breakpoint.spaceBetween = typeof (breakpoint.spaceBetween) === 'number' ? `${breakpoint.spaceBetween}px` : breakpoint.spaceBetween;
     this.slides = [...this.slider.querySelectorAll(`:scope > .cs-slide`)].filter(el => !el.matches(`[data-creator='${this.uniqueId}']`));
     if (!this.slides[0]) return;
@@ -311,11 +325,14 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
       [...this.carousel.querySelectorAll(`:scope [data-creator='${this.uniqueId}']`)].forEach(el => el.remove());
       this.slides.forEach((el, index) => {
         el.setAttribute('data-csId', index + 1);
-        let track = document.createElement('button');
-        track.classList.add('track');
-        track.setAttribute('data-trackId', index + 1);
-        track.setAttribute('data-creator', this.uniqueId);
-        this.tracker.append(track);
+        
+        if (this.tracker && this.settings.autoCreateTracker) {
+          let track = document.createElement('button');
+          track.classList.add('cs-tracker');
+          track.setAttribute('data-trackId', index + 1);
+          track.setAttribute('data-creator', this.uniqueId);
+          this.tracker.append(track);
+        }
 
         if (this.settings.continuous && this.settings.continuous !== 'rewind') {
           let eC = el.cloneNode(true);
@@ -341,7 +358,6 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
     [...this.slider.querySelectorAll(`:scope > .cs-slide`)].forEach((el) => {
       el.style.width = `calc(((100% + ${breakpoint.spaceBetween}) / ${this.tmp.slidesPerView}) - ${breakpoint.spaceBetween})`;
       el.style.marginRight = breakpoint.spaceBetween;
-      if (breakpoint.slidesHeight === 'inherit') el.style.height = 'inherit';
     });
     // cache slide extent
     this.tmp.slideExt = this.currSlide.offsetWidth + parseFloat(window.getComputedStyle(this.currSlide).getPropertyValue('margin-right'));
@@ -352,6 +368,7 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
     }
 
     this.update();
+    setTimeout(() => { this.slider.classList.remove('ghost-walk'); }, 10);
     if (this.settings.autoslide) this.m.startAutoslider();
   }
   dist(e) {
@@ -408,9 +425,11 @@ export class CarouselComponent implements AfterViewInit, OnDestroy {
       this.nextBtn.classList.add('disabled');
     }
 
-    let track = this.tracker.querySelector(`:scope [data-trackid="${newI}"]`);
-    track.classList.add('active');
-    [...this.tracker.children].filter((el) => el != track).forEach((el) => el.classList.remove('active'));
+    if (this.tracker) {
+      let track = this.tracker.querySelector(`:scope > *:nth-child(${newI})`);
+      track?.classList.add('active');
+      [...this.tracker.children].filter((el) => el != track).forEach((el) => el.classList.remove('active'));
+    }
     this.tmp.coordChange = false;
   }
 }

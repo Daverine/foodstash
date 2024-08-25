@@ -1,3 +1,11 @@
+$breakpoints: (
+  col: 0px,
+  sm: 480px,
+  md: 730px,
+  lg: 960px,
+  xl: 1200px,
+);
+
 @mixin light-mode() {
     --color-scheme: light;
 
@@ -18,10 +26,17 @@
     --on-surface-invert: #b3b2c0;
 
     --outline: var(--surface-v2);
+
+    --success: hsl(134deg 70% 40%);
+	--warning: hsl(39deg 100% 40%);
+	--error: hsl(2deg 72% 40%);
+
+    --scrim-color: var(--on-surface-v1);
+    --scrim-opacity: 0.7;
 }
 
 @mixin dark-mode() {
-    --color-scheme: light;
+    --color-scheme: dark;
 
     --primary: #e29417;
     --primary-solid: #f84419;
@@ -40,6 +55,13 @@
     --on-surface-invert: #b3b2c0;
 
     --outline: var(--surface-v2);
+
+    --success: hsl(134deg 70% 80%);
+	--warning: hsl(39deg 100% 80%);
+	--error: hsl(2deg 72% 80%);
+
+    --scrim-color: var(--on-surface-v2);
+    --scrim-opacity: 0.7;
 }
 
 @media screen and (prefers-color-scheme: light) {
@@ -86,7 +108,8 @@
     --semibold: 500;
     --normal: 400;
   
-    --container: 90rem;
+    --container-lg: 85.5rem;
+    --container: 72.5rem;
     --container-md: 43.75rem;
     --container-sm: 31.25rem;
     --container-xs: 25rem;
@@ -104,8 +127,6 @@
 	--z-level-3: 8000;
 	--z-level-2: 7000;
 	--z-level-1: 6000;
-
-    --scrim-opacity: 0.7;
 
 	// state opacity
 	--hover-state: 0.08;

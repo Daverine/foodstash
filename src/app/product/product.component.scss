@@ -1,4 +1,4 @@
-.product {
+:host {
     padding: 1rem;
     display: flex;
     flex-flow: column;
@@ -7,4 +7,6 @@
     text-align: center;
     border: 1px solid var(--surface-v2);
     border-radius: var(--md-radius);
+    width: 100%;
+    max-width: 21rem;
 }

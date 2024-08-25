@@ -1,0 +1,714 @@
+/* --- FORM AND FORM COMPONENTS ---*/
+.form-item,
+.input,
+.input-box,
+.select.dropdown,
+.option-group {
+	--form-bg-color: var(--surface);
+	--form-text-color: var(--on-surface);
+	--form-bd-color: var(--on-surface-v2);
+	--form-hover-bd-color: var(--on-surface-v1);
+	--form-focus-bd-color: var(--primary);
+	--form-line-height: 1.5;
+	--form-tb-padding: 0.5em;
+	--form-lr-padding: 0.75em;
+	--form-padding: calc(var(--form-tb-padding) - 1px) var(--form-lr-padding);
+	--form-height: calc((var(--form-line-height) * 1em) + (var(--form-tb-padding) * 2));
+
+	// form states
+	&.success {
+		--form-bd-color: var(--success);
+		--form-focus-bd-color: var(--success);
+	}
+
+	&.error {
+		--form-bd-color: var(--error);
+		--form-focus-bd-color: var(--error);
+	}
+
+	&.compact {
+		--form-tb-padding: 0.375em;
+		--form-lr-padding: 0.75em;
+	}
+
+	&.loose {
+		--form-tb-padding: 0.8125em;
+		--form-lr-padding: 0.75em;
+	}
+}
+
+.form-item,
+.input,
+.input-box,
+.select.dropdown {
+	font-size: 1em;
+	text-transform: none;
+	box-sizing: border-box;
+	color: var(--form-text-color);
+	line-height: var(--form-line-height);
+	width: auto;
+	max-width: 100%;
+	border-radius: var(--radius-default);
+}
+
+.form-item:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="image"]),
+.input,
+.input > .subject,
+.input-box > .subject,
+.select.dropdown {
+	display: inline-block;
+	outline: none;
+	text-align: left;
+	padding: var(--form-padding);
+	min-height: var(--form-height);
+	background-color: var(--form-bg-color);
+	border: 1px solid var(--form-bd-color);
+	box-shadow: none;
+	appearance: none;
+	-webkit-tap-highlight-color: transparent;
+
+	&:hover {
+		--form-bd-color: var(--form-hover-bd-color);
+	}
+
+	&:focus,
+	&:focus-within,
+	&.active {
+		border-color: var(--form-focus-bd-color);
+		box-shadow: 0px 0px 0px 1px var(--form-focus-bd-color);
+		outline: none;
+	}
+
+	&[disabled] {
+		@extend %disabled-input;
+	}
+}
+
+%disabled-input {
+	opacity: 0.5;
+	filter: grayscale(1);
+	cursor: not-allowed;
+}
+
+// form placeholder
+.form-item::placeholder,
+.select.dropdown .placeholder {
+	white-space: nowrap;
+	color: inherit !important;
+	opacity: 0.5;
+	line-height: var(--form-line-height);
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.form-item:focus::placeholder,
+.select.dropdown:focus .placeholder,
+.select.dropdown.active .placeholder {
+	color: inherit !important;
+	opacity: 0.6;
+}
+
+// lined form component [exclude: radio button, checkbox, range...]
+
+.form-item.lined,
+.input.lined,
+.input-box.lined > .subject,
+.select.dropdown.lined {
+	background-color: transparent !important;
+	border-style: none !important;
+	border-bottom-style: solid !important;
+	border-radius: 0em !important;
+	padding-left: 0em !important;
+	padding-right: 0em !important;
+
+	&:focus,
+	&:focus-within,
+	&.active {
+		box-shadow: 0 1px 0 0 var(--form-focus-bd-color) !important;
+	}
+}
+
+.form-item.transparent,
+.input.transparent,
+.input-box.transparent .subject,
+.select.dropdown.transparent {
+	color: inherit;
+	background-color: transparent !important;
+	border-color: transparent !important;
+}
+
+.form-item.text-fit,
+.input.text-fit,
+.input.text-fit > .subject,
+.input-box:not([class*=expandable]).text-fit,
+.input-box:not([class*=expandable]).text-fit > .subject,
+.select.dropdown.text-fit {
+	color: inherit !important;
+	height: auto !important;
+	min-height: auto !important;
+	min-width: 2em !important;
+	background: transparent !important;
+	border: 0px none !important;
+	padding: 0em !important;
+	box-shadow: none !important;
+	margin: 0em !important;
+}
+
+.form-item[type=checkbox]:not(.switch),
+.form-item[type=radio]:not(.switch) {
+	appearance: none;
+	background-color: var(--form-bg-color);
+	height: 1.125em;
+	width: 1.125em;
+	vertical-align: -0.07em;
+	flex: 0 0 auto;
+	border: 0.15em solid var(--form-bd-color);
+	display: inline-flex;
+
+	&:before {
+		content: "";
+		width: 100%;
+		height: 100%;
+		flex: 0 0 auto;
+		transform: scale(0);
+		transform-origin: center;
+		transition: 120ms transform ease-in-out;
+		box-shadow: none;
+		background-color: var(--form-text-color);	
+	}
+
+	&:hover {
+		--form-bd-color: var(--form-hover-bd-color);
+	}
+
+	&:focus {
+		border-color: var(--form-focus-bd-color);
+		outline: none;
+	}
+
+	&:disabled {
+		@extend %disabled-input;
+	}
+}
+
+.form-item[type=checkbox]:not(.switch) {
+	border-radius: calc(var(--radius-default) / 5);
+
+	&:before {
+		// clip-path: polygon(15% 40%, 0% 55%, 35% 90%, 100% 25%, 85% 10%, 35% 60%);
+		clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+	}
+
+	&:checked:before {
+		transform: scale(0.825);
+	}
+}
+
+.form-item[type=radio]:not(.switch) {
+	border-radius: 50%;
+
+	&:before {
+		clip-path: circle(50% at 50% 50%);
+	}
+
+	&:checked:before {
+		transform: scale(0.625);
+	}
+}
+
+.form-item[type=checkbox].switch,
+.form-item[type=radio].switch {
+	appearance: none;
+	width: 2.7em;
+	height: 1em;
+	flex: 0 0 auto;
+	background-color: var(--form-bd-color);
+	border-radius: var(--radius-full);
+	display: inline-flex;
+	align-items: center;
+	vertical-align: -0.25em;
+
+	&:hover {
+		--form-bd-color: var(--form-hover-bd-color);
+	}
+
+	&:focus {
+		outline: none;
+	}
+
+	&:before {
+		content: "";
+		transition: all .3s ease;
+		width: 1.4em;
+		height: 1.4em;
+		flex: 0 0 auto;
+		border-radius: 50%;
+		box-shadow: 0 1px 2px 0 var(--form-bd-color), 0 0 0 1px var(--form-bd-color) inset;
+		background-color: var(--form-bg-color);
+	}
+
+	&:checked {
+		background-color: var(--form-focus-bd-color);
+		
+		&:before {
+			transform: translateX(1.3em);
+		}
+	}
+
+	&:disabled {
+		@extend %disabled-input;
+	}
+}
+
+.form-item[type=range] {
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
+	cursor: pointer;
+	width: 15em;
+
+	&::-webkit-slider-runnable-track {
+		background: var(--form-bd-color);
+		height: 0.5em;
+	}
+
+	&::-moz-range-track {
+		background: var(--form-focus-bd-color);
+		height: 0.5em;
+	}
+
+	&::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		margin-top: -0.5em;
+		background-color: var(--form-focus-bd-color);
+		height: 1.5em;
+		width: 1em; 
+	}
+
+	&::-moz-range-thumb {
+		border: none;
+		border-radius: 0px;
+		background-color: var(--form-focus-bd-color);
+		height: 1.5em;
+		width: 1em;
+	}
+
+	&:focus {
+		outline: none;
+	}
+
+	&:focus::-webkit-slider-thumb {
+		outline: 2px solid var(--form-focus-bd-color);
+		outline-offset: 0.125em;
+	}
+
+	&:focus::-moz-range-thumb {
+		outline: 2px solid var(--form-focus-bd-color);
+		outline-offset: 0.125em;    
+	}
+}
+
+.form-item[type=file] {
+	padding-left: 0px !important;
+	padding-top: 0px !important;
+	padding-bottom: 0px !important;
+
+	&::file-selector-button {
+		font-family: inherit;
+		font-size: 1em;
+		font-weight: 500;
+		border: 0px none;
+		border-right: 1px solid var(--form-bd-color);
+		padding: var(--form-padding);
+		margin-right: var(--form-lr-padding);
+		border-radius: 0px;
+		background-color: transparent;
+		color: var(--form-text-color);
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	&::-webkit-file-upload-button {
+		font-family: inherit;
+		font-size: 1em;
+		font-weight: 500;
+		border: 0px none;
+		border-right: 1px solid var(--form-bd-color);
+		padding: var(--form-padding);
+		margin-right: var(--form-lr-padding);
+		border-radius: 0px;
+		background-color: transparent;
+		color: var(--form-text-color);
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	&::-ms-browse {
+		font-family: inherit;
+		font-size: 1em;
+		font-weight: 500;
+		border: 0px none;
+		border-right: 1px solid var(--form-bd-color);
+		padding: var(--form-padding);
+		margin-right: var(--form-lr-padding);
+		border-radius: 0px;
+		background-color: transparent;
+		color: var(--form-text-color);
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.select.dropdown {
+	display: inline-flex;
+	position: relative;
+	min-width: 7em;
+	width: max-content;
+
+	&:not(.no-indicator),
+	&.lined:not(.no-indicator),
+	&.input.text-fit:not(.no-indicator) {
+		padding-right: 1.625em !important;
+	}
+
+	// class for auto added indicator icon
+	& > .ddico {
+		position: absolute !important;
+		top: 0px;
+		right: 0px;
+		height: 100% !important;
+		width: 1.625em !important;
+	}
+
+	&.no-indicator > .ddico { display: none; }
+
+	&:not(.lined):not(.text-fit) > .lead {
+		margin-left: calc(0em - var(--form-lr-padding));
+	}
+	
+	& > .drop.menu {
+		position: absolute;
+		min-width: calc(100% + 4px);
+		max-height: 40vh;
+		overflow-y: auto;
+		font-size: inherit;
+		border: inherit !important;
+		left: 0;
+		right: 0;
+
+		&.rhs {
+			left: -1px;
+			right: auto;
+			margin-left: -2px;
+		}
+		
+		&.lhs {
+			left: auto;
+			right: -1px;
+			margin-right: -2px;
+		}
+
+		&.upward {
+			top: auto;
+			bottom: 100%;
+		}
+
+		&.downward {
+			top: 100%;
+			bottom: auto;
+		}
+
+		& > .item { border-top: 1px solid rgba(0,0,0,0.02); }
+	}
+
+	&.multiple {
+		padding-top: calc(var(--form-tb-padding) / 2);
+		padding-bottom: calc(var(--form-tb-padding) / 2);
+	}
+
+	& { @extend %icon-in-form-component }
+}
+
+.option-group {
+	display: inline-flex;
+	flex-flow: row nowrap;
+	gap: 0.25em;
+	border: 1px solid var(--form-bd-color);
+	border-radius: var(--radius-default);
+	padding: calc(var(--form-tb-padding) / 2 - 1px);
+	position: relative;
+
+	& > label {
+		display: flex;
+		flex-flow: row nowrap;
+		flex: 1 0 auto;
+		position: relative;
+		gap: 0.75em;
+		justify-content: center;
+		align-items: center;
+		border-radius: inherit;
+		padding: calc(var(--form-tb-padding) / 2) var(--form-tb-padding);
+		background-color: var(--surface);
+		color: var(--on-surface);
+		cursor: pointer;
+
+		& input[type=checkbox],
+		& input[type=radio] {
+			appearance: none;
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0px;
+			left: 0px;
+			background-color: var(--on-surface);
+			border: 0px none;
+			border-radius: inherit;
+			user-select: none;
+			pointer-events: none;
+			-webkit-tap-highlight-color: transparent;
+			opacity: 0;
+		
+			&:hover {
+				opacity: var(--hover-state);
+			}
+			
+			&:checked {
+				opacity: var(--press-state);
+			}
+		}
+	}
+	
+	&.icon {
+		display: inline-flex;
+	
+		&> label {
+			padding: calc(var(--form-tb-padding) / 2);
+		}
+	}
+}
+// use this as an input container + icon that still act like an input only
+// you mostly want to use the .input class on a label element that wraps an input subject.
+
+.input {
+	text-align: left;
+	display: inline-flex;
+	align-items: stretch;
+	position: relative;
+	padding: 0em !important;
+
+	& > .subject {
+		flex: 1 1 auto;
+		max-width: 100%;
+		min-height: 100% !important;
+		min-width: 3em;
+		margin: 0em !important;
+		color: inherit !important;
+		text-align: inherit !important;
+		background: transparent !important;
+		border: 0px none !important;
+		box-shadow: none !important;
+
+		&:not(:first-child) { padding-left: 0px !important; }
+		&:not(:last-child) { padding-right: 0px !important; }
+	}
+
+	& { @extend %icon-in-form-component; }
+
+	&[disabled] {
+		cursor: not-allowed !important;
+
+		& > * {
+			pointer-events: none;
+
+			&:not(.subject) {
+				opacity: 0.45 !important;
+			}
+		}
+
+		& > .subject {
+			@extend %disabled-input;
+		}
+	}
+}
+
+%icon-in-form-component {
+	& > .icon {
+		display: inline-flex;
+		line-height: inherit;
+		align-items: center;
+		justify-content: center;
+		z-index: 20;
+		margin: 0em;
+		opacity: 0.6;
+		transition: opacity 0.3s ease;
+		padding: 0em;
+		background-color: transparent;
+		border-radius: inherit;
+		color: inherit;
+		outline: 0px none;
+		border: 0px none;
+		box-shadow: none;
+		position: relative;
+		width: var(--form-height);
+		flex: 0 0 auto;
+		
+		&:not(a):not(button) {
+			cursor: default;
+			pointer-events: none;
+		}
+	}
+
+	& > .icon:hover,
+	& > .icon:focus
+	&:focus-within > .icon {
+		opacity: 1;
+	}
+
+	&.text-fit > .icon:first-child,
+	&.text-fit > .icon:last-child,
+	&.lined > .icon:first-child,
+	&.lined > .icon:last-child { width: calc(var(--form-height) - var(--form-tb-padding)); }
+
+	// .input should only contain an icon loader to avoid padding issues with the subject.
+	&.loading > .icon.loader {
+		content: "" !important;
+		color: transparent !important;
+		text-shadow: transparent;
+		text-align: center;
+		pointer-events: none;
+
+		&::after {
+			position: relative;
+			content: "" !important;
+			font-size: 1em !important;
+			line-height: 1 !important;
+			width: 1.2em;
+			height: 1.2em;
+			border-radius: var(--radius-full);
+			border: 0.188em solid var(--form-text-color);
+			border-top-color: var(--form-bg-color);
+			animation: spin 0.6s linear;
+			animation-iteration-count: infinite;
+		}
+
+		&::before { display: none; }
+	}
+}
+
+// .input-box class
+
+.input-box {
+	height: var(--form-height);
+	background-color: transparent !important;
+	border: 0px none !important;
+	text-align: left;
+	display: inline-flex;
+	position: relative;
+	padding: 0em !important;
+
+	& > * {
+		vertical-align: middle;
+
+		// fix for input border not showing when it is focused
+		&:focus,
+		&:focus-within { z-index: 10; }
+	}
+
+	& > .subject {
+		font-size: inherit;
+		border-radius: inherit;
+		max-width: 100%;
+		flex: 1 1 auto;
+		margin: 0em !important;
+		z-index: 0;
+	}
+
+	&[disabled] {
+		cursor: not-allowed !important;
+
+		& > * {
+			pointer-events: none;
+
+			&:not(.subject) {
+				opacity: 0.45 !important;
+			}
+		}
+
+		& > .subject {
+			@extend %disabled-input;
+		}
+	}
+
+	// Expandable Input
+	& > .addon {
+		position: relative;
+		flex: 0 0 auto;
+		margin: 0em;
+		height: 100%;
+		line-height: inherit;
+		border-radius: inherit;
+		white-space: nowrap;
+	}
+
+	& > *:not(:first-child) {
+		margin-left: -1px !important;
+	}
+
+	& > *:not(:first-child):not(:last-child) {
+		border-radius: 0em;
+	}
+
+	& > *:last-child:not(:only-child) {
+		border-top-left-radius: 0em;
+		border-bottom-left-radius: 0em;
+	}
+
+	& > *:first-child:not(:only-child) {
+		border-top-right-radius: 0em;
+		border-bottom-right-radius: 0em;
+	}
+}
+
+.field {
+	font-size: 1em;
+	position: relative;
+	margin: 0em 0em 1em;
+
+	&:last-child { margin-bottom: 0em !important; }
+
+	& > input,
+	& > select,
+	& > textarea,
+	& > .input-box {
+		font-size: 1em;
+		width: 100%;
+	}
+
+	& > label {
+		display: block;
+		font-size: 0.875em;
+		font-weight: bold;
+		line-height: inherit;
+		margin: 0em 0em 0.5em;
+	}
+}
+
+@media only screen and (min-width : 730px) {
+	.field.inline {
+		display: flex;
+		align-items: center;
+
+		& > label {
+			max-width: 12em;
+			white-space: nowrap;
+			margin: 0em 0.5em 0em 0em !important;
+		}
+	}
+}

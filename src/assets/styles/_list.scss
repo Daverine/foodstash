@@ -1,0 +1,74 @@
+/* --- LIST AND SET --- */
+
+ul,
+ol,
+dl {
+	font-size: 1em;
+	position: relative;
+	padding: 0;
+	display: block;
+	margin: var(--block-margin) 0em;
+}
+
+ul,
+ol {
+	margin-left: 2em;
+	list-style-position: outside;
+
+	& > li {
+		display: list-item;
+		position: relative;
+		padding-left: 0.5em;
+	}
+
+	& .sub-list {
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+	}
+
+	&.no-type,
+	&.no-type .sub-list:not(.free-list) {
+  		list-style: none;
+  		margin-left: 0;
+	}
+
+	&.inline {
+		display: block;
+		margin-left: 0;
+
+		& > li {
+			display: inline-block;
+
+			&:not(:first-child) {
+				margin-left: 0.5em;
+			}
+
+			&:first-child {
+				padding-left: 0em;
+			}
+		}
+	}
+
+	&.tree,
+	&.tree .sub-list {
+		&::before {
+			content: "";
+			position: absolute;
+			height: 100%;
+			border-left: 1.5px dotted var(--outline);
+		}
+
+		& > li {
+			padding-left: 1.2em;
+
+			&::before {
+				content: "";
+				position: absolute;
+				top: 0.7em;
+				left: 0;
+				width: 1em;
+				border-top: 1.5px dotted var(--outline);
+			}
+		}
+	}
+}

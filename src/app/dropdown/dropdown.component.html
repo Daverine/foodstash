@@ -1,1 +1,30 @@
-<p>dropdown works!</p>
+<ng-content></ng-content>
+@if (settings.selectable) {
+    @if (settings.multipleSelect) {
+        <div class="content no-content">
+            @for (item of tmp.selectionContent; track item.index) {
+                <div [attr.data-ddid]="item.index" [innerHTML]="item.html" class="chip"></div>
+            }
+            @if (settings.searchable) {
+                <input class='ssbox' autocomplete='off' tabindex='0'>
+                <span class='ddmss'></span>
+            }
+            <div class="placeholder">{{ placeholder }}</div>
+        </div>
+    }
+    @else {
+        @if (settings.searchable) {
+            <input class='ssbox' autocomplete='off' tabindex='0'>
+            <span class='ddmss'></span>
+        }
+        <div [innerHTML]="tmp.selectionContent" class="content"></div>
+        <div class="placeholder">{{ placeholder }}</div>
+    }
+    @if (classes.includes('select')) {
+        <button class="ddico icon">
+            <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"><path d="m480-222.609 108.913-108.913q13.202-12.696 30.21-12.696 17.007 0 29.138 13.299 12.13 11.734 12.13 29.552 0 17.817-11.13 29.758L509.957-132.87q-6.023 6.131-14.118 9.414-8.095 3.282-16.035 3.282-7.941 0-15.858-3.282-7.918-3.283-12.903-9.414L311.739-271.609q-12.13-12.071-12.13-29.927 0-17.855 12.233-29.769 12.234-12.913 29.834-12.63 17.6.283 29.976 12.413L480-222.609Zm0-512.651L371.087-626.348q-13.202 12.696-30.21 12.696-17.007 0-29.138-13.299-12.13-12.299-12.13-30.116 0-17.818 12.13-30.194l139.304-139.304q5.019-5.182 13.11-9.222 8.09-4.039 16.026-4.039 7.935 0 15.892 4.039 7.957 4.04 13.886 9.222l139.304 139.304q11.13 12.507 11.13 30.362 0 17.856-12.233 30.334-12.234 12.913-29.957 12.348-17.723-.565-29.853-12.696L480-735.26Z"/></svg>
+        </button>
+    }
+    <input [value]="value" type="hidden" [name]="name">
+}
+<ng-content #trailing></ng-content>

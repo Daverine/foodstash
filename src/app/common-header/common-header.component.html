@@ -141,7 +141,7 @@
     <div class="xhover item adaptable" style="max-width: 440px">
       <input
         type="search"
-        class="form-control"
+        class="form-item comp-rounded loose"
         style="
           background-color: var(--surface-v1);
           border: 0px none;
@@ -163,10 +163,14 @@
           </button>
         </div>
       </div>
-      <div class="item">
+      <app-dropdown class="item">
         Account
         <app-svgicon name="chevron-down" />
-      </div>
+        <div class="drop menu">
+          <a routerLink="/login" class="item">Login</a>
+          <a routerLink="/signup" class="item">Create account</a>
+        </div>
+      </app-dropdown>
     </div>
   </div>
 </div>
@@ -181,18 +185,67 @@
 </div>
 <div class="basic menu">
   <div class="items container">
-    <div class="item">Categories</div>
+    <app-dropdown class="item">
+      Categories
+      <div class="drop menu">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; padding: 1rem;">
+          <div class="col">
+            <div class="vertical text menu">
+              <div class="item">Grains</div>
+              <div class="item">Batteries</div>
+              <div class="item">Battery Chargers</div>
+              <div class="item">Bluetooth Headsets</div>
+              <div class="item">Cables</div>
+              <div class="item">Car Accessories</div>
+              <div class="item">Chargers</div>
+              <div class="item">Earphones & Headsets</div>
+              <div class="item">MicroSD Cards</div>
+              <div class="item">Screen Protectors</div>
+              <div class="item">Selfie Sticks & Tripods</div>
+              <div class="item">Smart Watches</div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="vertical text menu">
+              <div class="item">Grains</div>
+              <div class="item">Batteries</div>
+              <div class="item">Battery Chargers</div>
+              <div class="item">Bluetooth Headsets</div>
+              <div class="item">Cables</div>
+              <div class="item">Car Accessories</div>
+              <div class="item">Chargers</div>
+              <div class="item">Earphones & Headsets</div>
+              <div class="item">MicroSD Cards</div>
+              <div class="item">Screen Protectors</div>
+              <div class="item">Selfie Sticks & Tripods</div>
+              <div class="item">Smart Watches</div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="vertical text menu">
+              <div class="item">Perishables</div>
+              <div class="item">Samsung Galaxy S10</div>
+              <div class="item">iPhone 11</div>
+              <div class="item">Nokia 7.2</div>
+              <div class="item">Huawei Y9 S</div>
+              <div class="item">iPhone XS Max</div>
+              <div class="item">Infinix S5</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </app-dropdown>
     <a routerLink="/products" routerLinkActive="active" class="item">Products</a>
-    <div class="item">Combos</div>
-    <div class="item">About us</div>
+    <a routerLink="/combos" routerLinkActive="active" class="item">Combos</a>
+    <a routerLink="/about" routerLinkActive="active" class="item">About us</a>
     <div class="item">Contact us</div>
     <div class="item xhover r-aligned">
-      <button
+      <a routerLink="/signup"
         class="button"
         style="--bg-color: var(--secondary-solid); --text-color: var(--surface)"
       >
         Create account
-      </button>
+      </a>
     </div>
   </div>
 </div>

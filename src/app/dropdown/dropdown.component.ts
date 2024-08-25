@@ -1,4 +1,4 @@
-import { Attribute, Component, ElementRef, EventEmitter, Input, Output } from '@angular/core';
+import { Attribute, Component, effect, ElementRef, EventEmitter, Input, Output, signal } from '@angular/core';
 import { utils } from '../../assets/js/utils'
 import { BehaviorSubject } from 'rxjs';
 
@@ -7,22 +7,131 @@ import { BehaviorSubject } from 'rxjs';
   standalone: true,
   imports: [],
   templateUrl: './dropdown.component.html',
-  styleUrl: './dropdown.component.scss'
+  styleUrl: './dropdown.component.scss',
+  host: {
+    'class': 'dropdown',
+    '[class.active]': 'showDropdown()',
+    '[tabindex]': 'settings.selectable ? 0 : null',
+  }
 })
 export class DropdownComponent {
   classes;
   hoverable;
   menuId;
 
-  constructor(
+  constructor(el: ElementRef,
     @Attribute('class') classes,
     @Attribute('data-hover') hoverable,
     @Attribute('data-target') menuId
   ) {
+    this.dd = el.nativeElement;
     this.classes = classes ? classes.split(' ') : [];
     this.hoverable = hoverable !== 'false' && hoverable !== null;
     this.menuId = menuId;
     Object.keys(this.m).forEach(el => this.m[el] = this.m[el].bind(this));
+
+    effect(() => {
+      if (this.showDropdown()) {
+        if (this.dd.matches('.disabled, [disabled]')) return;
+        let items = [...this.dm.querySelectorAll(this.s.it_i)];
+
+        this.EscTrack = utils.getEscTrack();
+
+        if (this.settings.searchable) {						
+          this.sb.focus();
+          // what to do when searching in a dropdown box
+          this.sb.addEventListener('input', this.m.dd_searchFunc);
+          utils.triggerEvent(this.sb, 'input');
+        }
+        document.addEventListener('click', this.m.dd_clickOnDom);
+        document.addEventListener('keyup', this.m.dd_EscTabFunc);
+        document.addEventListener('keydown', this.m.dd_KBFunc);
+        window.addEventListener('resize', this.m.dd_CalcPosition);
+        window.addEventListener('scroll', this.m.dd_CalcPosition, true);
+        this.m.dd_onItemsHoverEvent();
+        this.m.dd_CalcPosition();
+        this.dm.classList.add('visible');
+
+        // highlight (add .hover class to) the active item or the first item in the menu list if dropdown is opened with with keyboard keys or it is a searchable dropdown. (default action)
+        if (this.tmp.keyboard) {
+          let acItem = items.filter((el) => el.matches('.active'))[0] || items[0];
+          
+          if (acItem) {
+            acItem.classList.add('hovered')
+            items.filter((el) => el != acItem).forEach((el) => el.classList.remove('hovered'));
+          }
+          
+          document.addEventListener('mousemove', this.m.dd_mouseMover);
+        }
+        // auto scroll dropdown-menu to active item position.
+        setTimeout(() => {
+          let acItem = items.filter((el) => el.matches('.active'))[0];
+          if (acItem) {
+            let
+              getIop = utils.getParents(acItem, '', this.dm).filter((el) => (window.getComputedStyle(el).getPropertyValue('overflow-y') === 'auto' || window.getComputedStyle(el).getPropertyValue('overflow-y') === 'scroll'))[0],
+              iOp = getIop ? getIop : this.dm,
+              dScroll = iOp.scrollTop,
+              sAmt = acItem.getBoundingClientRect().top - iOp.getBoundingClientRect().top + dScroll
+            ;
+
+            iOp.scrollTop = sAmt;
+          }
+        }, this.settings.duration + 50);
+      }
+      else {
+        [...this.dm.querySelectorAll(':scope .dropdown.active')].forEach((el) => utils.triggerEvent(el, new CustomEvent('ddconsole', {detail: 'close'})));
+
+        document.removeEventListener('click', this.m.dd_clickOnDom);
+        document.removeEventListener('keyup', this.m.dd_EscTabFunc);
+        document.removeEventListener('keydown', this.m.dd_KBFunc);
+        document.removeEventListener('mousemove', this.m.dd_mouseMover);
+        window.removeEventListener('resize', this.m.dd_CalcPosition);
+        window.removeEventListener('scroll', this.m.dd_CalcPosition, true);
+        this.m.dd_offItemHoverEvent();
+        [...this.dm.querySelectorAll(this.s.it)].forEach((el) => el.classList.remove('hovered'));
+
+        if (this.settings.searchable) {
+          this.sb.removeEventListener('input', this.m.dd_searchFunc);
+          this.sb.value = '';
+          this.sc.classList.remove('filtered');
+          this.ph.classList.remove('filtered');
+        }
+        
+        if (this.settings.hover) document.removeEventListener('mousemove', this.m.dd_toggleDropdown);
+        
+        // safely get out of escape track
+        if (typeof(this.EscTrack) === 'number') {
+          if (utils.checkEscStatus(this.EscTrack)) this.EscTrack = undefined;
+          else {
+            let
+              count = 0,
+              counter = setInterval(() => {
+                if (utils.checkEscStatus(this.EscTrack)) {
+                  this.EscTrack = undefined;
+                  clearInterval(counter);
+                }
+                else if (count >= 5) {
+                  console.warn(`Escape Track on ${this.dd} is lost.`);
+                  this.EscTrack = undefined;
+                  clearInterval(counter);
+                }
+                count++
+              }, 10)
+            ;
+          }
+        }
+        
+        this.dm.classList.remove('visible');
+      }
+    });
+    effect(() => {
+      if (this.allItemFiltered()) utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'on allItemFiltered'}));
+      else utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'off allItemFiltered'}));
+    });
+    effect(() => {
+      if (this.allItemSelected()) utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'on allItemSelected'}));
+      else utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'off allItemSelected'}));
+    });      
   }
 
 	@Input() modelValue;
@@ -32,7 +141,6 @@ export class DropdownComponent {
   
   @Output() update = new EventEmitter();
 
-  el: ElementRef;
   dd;
   dm;
   sc;
@@ -41,7 +149,7 @@ export class DropdownComponent {
   sb;
   sz;
   
-  showDropdown = false;
+  showDropdown = signal(false);
   uniqueId;
   EscTrack;
   settings;
@@ -58,10 +166,11 @@ export class DropdownComponent {
     selectionContent: undefined,
     positionStream: undefined,
     asdm: [], // an array to contain browseable sub dropdown menu
+    keyboard: undefined,
   };
-  allItemSelected = false;
-  allItemFiltered = false;
-  value = new BehaviorSubject(false);
+  allItemSelected = signal(false);
+  allItemFiltered = signal(false);
+  value = new BehaviorSubject(undefined);
   m = {
     dd_setSelect(item, xClose = false) {
       if (!item || !this.settings.selectable) return;
@@ -87,15 +196,15 @@ export class DropdownComponent {
         });
         this.sc.classList.remove('no-content');
 
-        if (this.settings.searchable && this.showDropdown) {
+        if (this.settings.searchable && this.showDropdown()) {
           this.sb.value = '';
           utils.triggerEvent(this.sb, 'input');
           this.sb.focus();
         }
 
-        if (!items.filter((el) => !el.matches('.selected'))[0]) this.allItemSelected = true;
+        if (!items.filter((el) => !el.matches('.selected'))[0]) this.allItemSelected.set(true);
 
-        if (!this.showDropdown || this.dd.matches('.indicating')) return;
+        if (!this.showDropdown() || this.dd.matches('.indicating')) return;
 
         item.classList.remove('hovered');
         
@@ -112,7 +221,7 @@ export class DropdownComponent {
       }
       else {
         item.classList.add('active');
-        if (!this.showDropdown && items.filter((el) => el !== item && el.matches('.active'))[0]) console.warn("A selection-dropdown on this page has multiple preselected value which is not suppose to be except it is a multiple-selection-dropdown. Only the first preselected value will be preselected.");
+        if (!this.showDropdown() && items.filter((el) => el !== item && el.matches('.active'))[0]) console.warn("A selection-dropdown on this page has multiple preselected value which is not suppose to be except it is a multiple-selection-dropdown. Only the first preselected value will be preselected.");
 
         items.filter((el) => el !== item).forEach((el) => el.classList.remove('active'));
         this.value.next(item.getAttribute('data-value') || item.textContent);
@@ -125,7 +234,7 @@ export class DropdownComponent {
           utils.triggerEvent(this.sb, 'input');
         }
 
-        this.showDropdown = false;
+        this.showDropdown.set(false);
       }
     },
     dd_setDeselect(sItem) {
@@ -142,10 +251,10 @@ export class DropdownComponent {
       item.setAttribute('data-ddid', '');
       this.tmp.selectionContent = this.tmp.selectionContent.filter((el) => el.index !== ddid);
 
-      if (this.allItemSelected) this.allItemSelected = false;
+      if (this.allItemSelected()) this.allItemSelected.set(false);
       if (!this.tmp.selectionContent[0]) this.sc.classList.add('no-content');
 
-      if (this.showDropdown) {
+      if (this.showDropdown()) {
         if (this.settings.searchable) {
           this.sb.value = '';
           utils.triggerEvent(this.sb, 'input');
@@ -168,7 +277,7 @@ export class DropdownComponent {
             clearTimeout(this.tmp.hdt);
             this.tmp.sdt = setTimeout(() => {
               if (this.settings.searchable) this.m.dd_toggleDropdown('keyboard');
-              else this.showDropdown = true;
+              else this.showDropdown.set(true);
             }, timeDelay/2);
           }
           else if (e.type === 'mousemove') {
@@ -183,22 +292,22 @@ export class DropdownComponent {
             clearTimeout(this.tmp.sdt);
             this.tmp.hdt = setTimeout(() => {
               this.settings.closing = false;
-              this.showDropdown = false;
+              this.showDropdown.set(false);
             }, timeDelay);
           }
           else if (e.type === 'touchstart') {
             // prevent opening and closing event from interfering with drop menu item actions.
             if (this.dm.contains(e.target)) return;
             
-            if (this.showDropdown) {
+            if (this.showDropdown()) {
               clearTimeout(this.tmp.sdt);
-              this.showDropdown = false;
+              this.showDropdown.set(false);
             }
             else {
               document.addEventListener('mousemove', this.m.dd_toggleDropdown);
               clearTimeout(this.tmp.hdt);
               if (this.settings.searchable) this.m.dd_toggleDropdown('keyboard');
-              else this.showDropdown = true;
+              else this.showDropdown.set(true);
             }
           }
         }
@@ -212,18 +321,18 @@ export class DropdownComponent {
           //get pointer cordinate to use for page-dropdown
           if (this.settings.page) this.settings.e = e;
 
-          if (this.showDropdown) {
-            if (this.settings.searchable && this.dd.classList.contains('select') && !this.$refs.ddIcon.contains(e.target)) {
-              this.$refs.searchBox.focus();
+          if (this.showDropdown()) {
+            if (this.settings.searchable && this.dd.classList.contains('select') && !this.dd.querySelector(':scope .ddico')?.contains(e.target)) {
+              this.sb.focus();
               return;
             }
             
-            setTimeout(() => this.showDropdown = false, timeDelay);
+            setTimeout(() => this.showDropdown.set(false), timeDelay);
           }
           else {
             setTimeout(() => {
               if (this.settings.searchable) this.m.dd_toggleDropdown('keyboard');
-              else this.showDropdown = true;
+              else this.showDropdown.set(true);
             }, timeDelay)
           }
         }
@@ -231,16 +340,16 @@ export class DropdownComponent {
       }
       else if (e === 'keyboard') {
         this.tmp.keyboard = true;
-        if (this.showDropdown) return;
+        if (this.showDropdown()) return;
       }
       
-      if (this.showDropdown) this.showDropdown = false;
-      else if (e !== 'close-all') this.showDropdown = true;
+      if (this.showDropdown()) this.showDropdown.set(false);
+      else if (e !== 'close-all') this.showDropdown.set(true);
 
       if (e === 'close-all') this.m.dd_closeAll();
     },
     dd_openWithKeyboard(e) {
-      if ((e.key == "Enter" || e.key == "ArrowDown") && (this.dd.matches(':focus') || this.dd.querySelectorAll(':scope :focus')[0]) && !this.showDropdown) {
+      if ((e.key == "Enter" || e.key == "ArrowDown") && (this.dd.matches(':focus') || this.dd.querySelectorAll(':scope :focus')[0]) && !this.showDropdown()) {
         e.preventDefault();
         this.m.dd_toggleDropdown('keyboard');
       }
@@ -257,7 +366,7 @@ export class DropdownComponent {
 
       this.sz.textContent = this.sb.value;
       this.sb.style.width = this.sz.clientWidth + 'px';
-      if (!this.showDropdown) this.m.dd_toggleDropdown("keyboard");
+      if (!this.showDropdown()) this.m.dd_toggleDropdown("keyboard");
     },
     dd_mSClickFunc(e) {
       let
@@ -266,7 +375,7 @@ export class DropdownComponent {
         sItemClose = [...this.dd.querySelectorAll(':scope > .content > .chip > .close')].filter((el) => el.contains(e.target))[0]
       ;
       // deselecting multiple dropdown item when not opened when user clicks on the close button of a chip
-      if (sItemClose && !this.showDropdown) this.m.dd_setDeselect(sItem);
+      if (sItemClose && !this.showDropdown()) this.m.dd_setDeselect(sItem);
       else if (sItem) {
         let sItemSib = sItems.filter((el) => el != sItem);
         
@@ -358,13 +467,13 @@ export class DropdownComponent {
       if (!items[0]) {
         [...this.dm.querySelectorAll(this.s.it)].forEach((el) => el.classList.remove('hovered'));
 
-        if (filter && !this.allItemFiltered) this.allItemFiltered = true;
-        else if (!filter && this.allItemFiltered) this.allItemFiltered = false;
+        if (filter && !this.allItemFiltered()) this.allItemFiltered.set(true);
+        else if (!filter && this.allItemFiltered()) this.allItemFiltered.set(false);
       }
       else if (filter && !this.dd.matches('.indicating')) {
         [...this.dm.querySelectorAll(this.s.it)].forEach((el) => el.classList.remove('hovered'));
         items[0].classList.add('hovered');
-        this.allItemFiltered = false;
+        this.allItemFiltered.set(false);
       }
       
       if (this.settings.multipleSelect) {
@@ -388,7 +497,7 @@ export class DropdownComponent {
       ;
 
       /* Close when an exiter is clicked or on "Click Out" */
-      if (exiter || (!this.dd.contains(e.target) && !this.dm.contains(e.target))) this.showDropdown = false;
+      if (exiter || (!this.dd.contains(e.target) && !this.dm.contains(e.target))) this.showDropdown.set(false);
       /* do something when an item is clicked */
       else if (item) {					
         if (item.matches('.dropdown')) return;
@@ -410,7 +519,7 @@ export class DropdownComponent {
       if ((e.key == 'Escape' && utils.checkEscStatus(this.EscTrack)) || (e.key == 'Tab' && ![...this.dd.querySelectorAll(':scope :focus')][0] && ![...this.dm.querySelectorAll(':scope :focus')][0] && ![...this.dm.querySelectorAll(':scope .dropdown.active')][0])) {
         e.preventDefault();
         if (e.key === 'Escape') this.EscTrack = undefined;
-        this.showDropdown = false;
+        this.showDropdown.set(false);
 
         if (e.key == 'Tab') this.m.dd_closeAll();
         else if (this.dd.matches('.sub') && this.m.dd_getParentDropdown()) utils.triggerEvent(this.m.dd_getParentDropdown(), new CustomEvent('ddconsole', {detail: {command: 'set hovered item', el: this.dd}}));
@@ -437,7 +546,7 @@ export class DropdownComponent {
       // Arrow left key (Use to close a sub dropdown) support
       else if (e.key == 'ArrowLeft' && this.dd.matches('.sub') && ![...this.dm.querySelectorAll(':scope .dropdown.active')][0]) {
         e.preventDefault();
-        this.showDropdown = false;
+        this.showDropdown.set(false);
         if (this.dd.matches('.sub') && this.m.dd_getParentDropdown()) utils.triggerEvent(this.m.dd_getParentDropdown(), new CustomEvent('ddconsole', {detail: {command: 'set hovered item', el: this.dd}}));
       }
       // Up and down arrrow key navigation on dropdown menu item.
@@ -532,7 +641,7 @@ export class DropdownComponent {
         item.classList.add('hovered');
         items.filter((el) => el !== item).forEach((el) => el.classList.remove('hovered'));
       }
-      else if (this.settings.hover) { this.showDropdown = false; }
+      else if (this.settings.hover) { this.showDropdown.set(false); }
       else { items.forEach((el) => el.classList.remove('hovered')); }
 
       this.m.dd_onItemsHoverEvent();
@@ -719,9 +828,9 @@ export class DropdownComponent {
       return pDd;
     },
     dd_console(e) {
-      if (e.detail === 'close') this.showDropdown = false;
+      if (e.detail === 'close') this.showDropdown.set(false);
       else if (e.detail === 'close all ancestor dropdown') this.m.dd_toggleDropdown('close-all');
-      else if (e.detail === 'open') this.showDropdown = true;
+      else if (e.detail === 'open') this.showDropdown.set(true);
       else if (e.detail === 'open with keyboard') this.m.dd_toggleDropdown('keyboard');
       else if (e.detail.command === 'set hovered item' && e.detail.el) {
         [...this.dm.querySelectorAll(this.s.it)].forEach((el) => el.classList.remove('hovered'));
@@ -776,7 +885,7 @@ export class DropdownComponent {
           }
           else this.sc.classList.add('no-content');
 
-          if (!items.filter((el) => !el.matches('.selected'))[0]) this.allItemSelected = true;
+          if (!items.filter((el) => !el.matches('.selected'))[0]) this.allItemSelected.set(true);
 
           this.value.next(Object.values(this.ip.luiData));
         }
@@ -825,7 +934,6 @@ export class DropdownComponent {
   };
   ngAfterViewInit() {
     // cache all concurrent elements and selectors
-    this.dd = this.el.nativeElement;
     this.dm = this.dd.querySelector(':scope > .drop.menu') || document.getElementById(this.settings.menuId);
     this.s = {
       it: ':scope > .item:not(.xhover):not(.disabled), :scope > .items > .item:not(.xhover):not(.disabled)', // select all element in dropMenu regardless of it statuses
@@ -903,112 +1011,9 @@ export class DropdownComponent {
 
     if (this.settings.selectable) {
       this.value.subscribe(this.m.emit_model);
+      this.modelValue.subscribe(this.m.absorb_model);
       // this.$watch('modelValue', this.m.absorb_model, { immediate: this.modelValue === undefined ? false : true });
     }
-  };
-  watch = {
-    showDropdown(value) {
-      if (value) {
-        if (this.dd.matches('.disabled, [disabled]')) return;
-        let items = [...this.dm.querySelectorAll(this.s.it_i)];
-
-        this.EscTrack = utils.getEscTrack();
-
-        if (this.settings.searchable) {						
-          this.sb.focus();
-          // what to do when searching in a dropdown box
-          this.sb.addEventListener('input', this.m.dd_searchFunc);
-          utils.triggerEvent(this.sb, 'input');
-        }
-        document.addEventListener('click', this.m.dd_clickOnDom);
-        document.addEventListener('keyup', this.m.dd_EscTabFunc);
-        document.addEventListener('keydown', this.m.dd_KBFunc);
-        window.addEventListener('resize', this.m.dd_CalcPosition);
-        window.addEventListener('scroll', this.m.dd_CalcPosition, true);
-        this.m.dd_onItemsHoverEvent();
-        this.m.dd_CalcPosition();
-        this.dm.classList.add('visible');
-
-        // highlight (add .hover class to) the active item or the first item in the menu list if dropdown is opened with with keyboard keys or it is a searchable dropdown. (default action)
-        if (this.tmp.keyboard) {
-          let acItem = items.filter((el) => el.matches('.active'))[0] || items[0];
-          
-          if (acItem) {
-            acItem.classList.add('hovered')
-            items.filter((el) => el != acItem).forEach((el) => el.classList.remove('hovered'));
-          }
-          
-          document.addEventListener('mousemove', this.m.dd_mouseMover);
-        }
-        // auto scroll dropdown-menu to active item position.
-        setTimeout(() => {
-          let acItem = items.filter((el) => el.matches('.active'))[0];
-          if (acItem) {
-            let
-              getIop = utils.getParents(acItem, '', this.dm).filter((el) => (window.getComputedStyle(el).getPropertyValue('overflow-y') === 'auto' || window.getComputedStyle(el).getPropertyValue('overflow-y') === 'scroll'))[0],
-              iOp = getIop ? getIop : this.dm,
-              dScroll = iOp.scrollTop,
-              sAmt = acItem.getBoundingClientRect().top - iOp.getBoundingClientRect().top + dScroll
-            ;
-
-            iOp.scrollTop = sAmt;
-          }
-        }, this.settings.duration + 50);
-      }
-      else {
-        [...this.dm.querySelectorAll(':scope .dropdown.active')].forEach((el) => utils.triggerEvent(el, new CustomEvent('ddconsole', {detail: 'close'})));
-
-        document.removeEventListener('click', this.m.dd_clickOnDom);
-        document.removeEventListener('keyup', this.m.dd_EscTabFunc);
-        document.removeEventListener('keydown', this.m.dd_KBFunc);
-        document.removeEventListener('mousemove', this.m.dd_mouseMover);
-        window.removeEventListener('resize', this.m.dd_CalcPosition);
-        window.removeEventListener('scroll', this.m.dd_CalcPosition, true);
-        this.m.dd_offItemHoverEvent();
-        [...this.dm.querySelectorAll(this.s.it)].forEach((el) => el.classList.remove('hovered'));
-
-        if (this.settings.searchable) {
-          this.sb.removeEventListener('input', this.m.dd_searchFunc);
-          this.sb.value = '';
-          this.sc.classList.remove('filtered');
-          this.ph.classList.remove('filtered');
-        }
-        
-        if (this.settings.hover) document.removeEventListener('mousemove', this.m.dd_toggleDropdown);
-        
-        // safely get out of escape track
-        if (typeof(this.EscTrack) === 'number') {
-          if (utils.checkEscStatus(this.EscTrack)) this.EscTrack = undefined;
-          else {
-            let
-              count = 0,
-              counter = setInterval(() => {
-                if (utils.checkEscStatus(this.EscTrack)) {
-                  this.EscTrack = undefined;
-                  clearInterval(counter);
-                }
-                else if (count >= 5) {
-                  console.warn(`Escape Track on ${this.dd} is lost.`);
-                  this.EscTrack = undefined;
-                  clearInterval(counter);
-                }
-                count++
-              }, 10)
-            ;
-          }
-        }
-        
-        this.dm.classList.remove('visible');
-      }
-    },
-    allItemFiltered(value) {
-      if (value) utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'on allItemFiltered'}));
-      else utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'off allItemFiltered'}));
-    },
-    allItemSelected(value) {
-      if (value) utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'on allItemSelected'}));
-      else utils.triggerEvent(this.dm, new CustomEvent('dmconsole', {detail: 'off allItemSelected'}));
-    },
   };
   ngOnDestroy() {
     document.removeEventListener('click', this.m.dd_clickOnDom);

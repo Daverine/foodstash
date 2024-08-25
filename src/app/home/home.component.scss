@@ -1,87 +1,28 @@
-.hero {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-    align-items: center;
-    justify-items: center;
+.marquee-text {
+    overflow: clip;
+}
+.marquee-text-track {
+    display: flex;
     gap: 1.5rem;
-    align-items: stretch;
-    justify-items: stretch;
+    padding-left: 1.5rem;
+    width: max-content;
+    animation: marquee-move-track 20s linear infinite;
 }
 
-.avatar-box {
-    display: flex;
-    align-items: center;
-
-    .avatar {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-        display: inline-block;
-        background-size: cover;
-        color: var(--surface);
-        background-color: var(--on-surface);
-        border: 2px solid var(--surface);
-
-        &:not(:first-child) { margin-left: -0.75rem; }
+@keyframes marquee-move-track {
+    to {
+        transform: translateX(-50%);
     }
-}
-
-.star-box {
-    display: flex;
-    align-items: center;
-    font-size: var(--sm-size);
-    color: var(--primary);
 }
 
 .card {
     display: flex;
     flex-flow: column;
-    gap: 1em;
-    justify-content: space-between;
-    align-items: start;
-    width: 100%;
-    max-width: 100%;
-    border-radius: 1em;
-    padding: 2.5em;
-
-    &.in-grid { min-height: 28rem; }
-
-    &.outlined {
-        border: 1px solid var(--surface-v2);
-    }
-}
-
-.product {
-    width: 35rem;
-    height: 18rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-radius: 1.25rem;
-    border: 1px solid var(--surface-v1);
-    background: var(--surface);
-    box-shadow: 0px 25px 50px 0px rgba(191, 197, 204, 0.10);
-
-    & > div { border-radius: inherit; }
-    
-    & > div:first-child {
-        background-color: var(--surface-v1);
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        border-top-right-radius: 0em;
-        border-bottom-right-radius: 0em;
-    }
-    
-    & > div:last-child {
-        display: flex;
-        flex-flow: column;
-        padding: 2em;
-        gap: 1em;
-        border-top-left-radius: 0em;
-        border-bottom-left-radius: 0em;
-
-    }
+    gap: 1rem;
+    background-color: var(--surface-v1);
+    padding: 2.5rem;
+    max-width: 20rem;
+    border-radius: var(--md-radius);
 }
 
 .testimonial {
@@ -91,12 +32,14 @@
     align-items: start;
     justify-content: space-between;
     width: 100%;
-    max-width: 100%;
+    height: 100%;
+    align-self: stretch;
+    max-width: var(--container-sm);
     border-radius: 0.5em;
     padding: 2.5em;
     background-color: var(--surface-v2);
     width: 100%;
-    max-width: 31rem;
+    max-width: var(--container-sm);
 
     & > p {
         font-size: var(--xl-size);
@@ -107,6 +50,7 @@
         display: flex;
         align-items: center;
         gap: 1.5em;
+        margin-top: 3rem;
 
         & > .avatar {
             width: 3.75rem;
@@ -132,9 +76,8 @@
 }
 
 .collapsible-cont {
-    background-color: var(--surface-v2);
     padding: 1.625em;
-    border-radius: 0.75rem;
+    border-bottom: 1px solid var(--surface-v2);
 
     & > header {
         display: flex;
@@ -156,3 +99,6 @@
     }
 }
 
+.carouselItem {
+    margin-right: 20px;
+}

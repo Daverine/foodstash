@@ -120,27 +120,57 @@
 .auto-margined {
   margin: auto !important;
 }
-.auto-t-margined {
-  margin-top: auto !important;
-}
-.auto-b-margined {
-  margin-bottom: auto !important;
-}
-.auto-l-margined {
-  margin-left: auto !important;
-}
-.auto-r-margined {
-  margin-right: auto !important;
-}
 
-.auto-h-margined {
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
+.auto-t-margined,
 .auto-v-margined {
   margin-top: auto !important;
+}
+
+.auto-b-margined,
+.auto-v-margined {
   margin-bottom: auto !important;
+}
+
+.auto-l-margined,
+.auto-h-margined {
+  margin-left: auto !important;
+}
+
+.auto-r-margined,
+.auto-h-margined {
+  margin-right: auto !important;
+}
+
+// paddings
+
+.padded {
+  padding: 1rem !important;
+}
+
+.l-padded,
+.h-padded {
+  padding-left: 1rem !important;
+}
+
+.r-padded,
+.h-padded {
+  padding-right: 1rem !important;
+}
+
+.t-padded,
+.v-padded {
+  padding-top: 1rem !important;
+}
+
+.b-padded,
+.v-padded {
+  padding-bottom: 1rem !important;
+}
+
+.flex-middle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 // Element Width
@@ -150,11 +180,13 @@
 }
 
 .container,
+.container-lg,
 .container-md,
 .container-sm,
 .container-xs,
 .container-micro,
-.container-nano {
+.container-nano,
+.container-pico {
   position: relative;
   width: 100%;
   margin: 0 auto;
@@ -165,13 +197,30 @@
   }
 }
 
-.container { max-width: var(--container); }
-.container-md { max-width: var(--container-md); }
-.container-sm { max-width: var(--container-sm); }
-.container-xs { max-width: var(--container-xs); }
-.container-micro { max-width: var(--container-micro); }
-.container-nano { max-width: var(--container-nano); }
-.container-pico { max-width: var(--container-pico); }
+.container {
+  max-width: var(--container) !important;
+}
+.container-lg {
+  max-width: var(--container-lg) !important;
+}
+.container-md {
+  max-width: var(--container-md) !important;
+}
+.container-sm {
+  max-width: var(--container-sm) !important;
+}
+.container-xs {
+  max-width: var(--container-xs) !important;
+}
+.container-micro {
+  max-width: var(--container-micro) !important;
+}
+.container-nano {
+  max-width: var(--container-nano) !important;
+}
+.container-pico {
+  max-width: var(--container-pico) !important;
+}
 
 .clearfix {
   &::before {
@@ -192,4 +241,12 @@
   line-clamp: 1;
   -webkit-line-clamp: 1;
   overflow: hidden;
+}
+
+.flexbox {
+  display: flex !important;
+}
+
+.iflexbox {
+  display: inline-flex !important;
 }

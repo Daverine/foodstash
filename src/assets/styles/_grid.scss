@@ -1,0 +1,71 @@
+// Chnage these as per your requirement
+$max-cols: 12;
+
+// creates CSS grid template columns with $columns
+@mixin mk-columns($breakpoint) {
+  $i: 1;
+  @while $i <= $max-cols {
+    @if $breakpoint == col {
+      &[class~="#{$i}-cols"] {
+        grid-template-columns: repeat($i, 1fr);
+      }
+    } @else {
+      &.#{$breakpoint}-#{$i}-cols {
+        grid-template-columns: repeat($i, 1fr);
+      }
+    }
+    $i: $i + 1;
+  }
+}
+
+// Creates media query CSS grid template columns
+@mixin mq-grids($breakpoint, $breakpoint-size) {
+  @if $breakpoint == col {
+    @include mk-columns($breakpoint);
+  } @else {
+    @media (min-width: $breakpoint-size) {
+      @include mk-columns($breakpoint);
+    }
+  }
+}
+
+.grid {
+  display: grid;
+  position: relative;
+
+  &.guttered {
+    gap: 1rem;
+  }
+
+  @each $breakpoint, $size in $breakpoints {
+    @if $breakpoint == col {
+      @include mk-columns($breakpoint);
+    } @else {
+      @media only screen and (min-width: $size) {
+        @include mk-columns($breakpoint);
+      }
+    }
+  }
+}
+
+@each $breakpoint, $size in $breakpoints {
+  @if $breakpoint == col {
+    $i: 1;
+    @while $i <= $max-cols {
+      [class~="#{$i}-width"] {
+        width: calc(100% * $i / $max-cols) !important;
+      }
+      $i: $i + 1;
+    }
+  } @else {
+    @media only screen and (min-width: $size) {
+      $i: 1;
+      @while $i <= $max-cols {
+        .#{$breakpoint}-#{$i}-width {
+          width: calc(100% * $i / $max-cols) !important;
+        }
+        $i: $i + 1;
+      }
+    }
+  }
+}

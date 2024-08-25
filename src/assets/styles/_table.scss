@@ -1,0 +1,613 @@
+/* --- TABLE --- */
+
+table.table {
+	--text-size: 1rem;
+	--text-color: var(--on-surface);
+	--bd-color: var(--outline-burnt);
+	--bg-color: var(--surface);
+	--elevated-bg-color: var(--surface-v1);
+	--stripe-bg-color: var(--surface-v2);
+	--cell-padding: 0.625em 0.8em;
+	--thf-padding: 0.75em 0.8em;
+
+	&.compact {
+		--cell-padding: 0.5em;
+		--thf-padding: 0.6em 0.5em;
+	}
+
+	&.loose {
+		--cell-padding: 1em;
+		--thf-padding: 1.1em 1em;
+	}
+
+	.success {
+		--text-color: var(--success);
+		--bg-color: var(--success-cont);		
+	}
+
+	.warning {
+		--text-color: var(--warning);
+		--bg-color: var(--warning-cont);		
+	}
+
+	.error {
+		--text-color: var(--error);
+		--bg-color: var(--error-cont);		
+	}
+}
+
+table.table {
+	font-size: var(--text-size);
+	line-height: 1.25;
+	width: 100%;
+	display: table;
+	background-color: var(--bg-color);
+	border: 1px solid var(--bd-color);
+	color: var(--text-color);
+	text-align: left;
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin: 1rem 0;
+
+	& thead,
+	& tfoot,
+	& tbody {
+		box-shadow: none;
+	}
+
+	& th,
+	& td {
+		position: relative;
+		text-align: inherit;
+		color: var(--text-color);
+		background-color: var(--bg-color);
+		text-transform: none;
+		border: 1px solid var(--bd-color);
+
+		&:before {
+			content: "";
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0px;
+			left: 0px;
+			background-color: var(--text-color);
+			border: 0px none;
+			border-radius: inherit;
+			user-select: none;
+			pointer-events: none;
+			-webkit-tap-highlight-color: transparent;
+			opacity: 0;
+		}
+	}
+
+	& th,
+	& thead td,
+	& tfoot td { 
+		background-color: var(--elevated-bg-color);
+		padding: var(--thf-padding);
+		font-weight: bold;
+	}
+
+	& td {
+		padding: var(--cell-padding);
+	}
+
+	thead tr:last-child th,
+	thead tr:last-child td,
+	& > tr > th:first-child {
+		border-bottom-color: var(--on-surface);
+	}
+
+	tfoot tr:first-child th,
+	tfoot tr:first-child td,
+	& > tr > th:last-child {
+		border-top-color: var(--on-surface);
+	}
+
+	tbody tr:last-child td,
+	tbody tr:last-child th {
+		border-bottom: 0px none;
+	}
+
+	&.rounded {
+		border-radius: var(--radius-round);
+		border-collapse: separate;
+
+		& th,
+		& td {
+			border-left: none;
+			border-radius: 0em;
+		}
+
+		& tr th:last-child,
+		& tr td:last-child {
+			border-right: none;
+		}
+
+		& thead tr th,
+		& thead tr td,
+		& tbody tr th,
+		& tbody tr td,
+		& tfoot tr:not(:first-child) th,
+		& tfoot tr:not(:first-child) td,
+		& > tr th,
+		& > tr td {
+			border-top: none;
+		}
+
+		& tbody tr:last-child th,
+		& tbody tr:last-child td,
+		& tfoot tr:last-child th,
+		& tfoot tr:last-child td,
+		& > tr:last-child th,
+		& > tr:last-child td {
+			border-bottom: none;
+		}
+
+		// Table Headers
+
+		& thead:first-child,
+		& thead:first-child tr:first-child,
+		& thead:first-child tr:first-child > th:first-child,
+		& thead:first-child tr:first-child > td:first-child {
+			border-top-left-radius: inherit;
+		}
+
+		& thead:first-child,
+		& thead:first-child tr:first-child,
+		& thead:first-child tr:first-child > th:last-child,
+		& thead:first-child tr:first-child > td:last-child {
+			border-top-right-radius: inherit;
+		}
+
+		// Table Footer
+
+		& tfoot:last-child,
+		& tfoot:last-child tr:last-child,
+		& tfoot:last-child tr:last-child > th:first-child,
+		& tfoot:last-child tr:last-child > td:first-child {
+			border-bottom-left-radius: inherit;
+		}
+
+		& tfoot:last-child,
+		& tfoot:last-child tr:last-child,
+		& tfoot:last-child tr:last-child > th:last-child,
+		& tfoot:last-child tr:last-child > td:last-child {
+			border-bottom-right-radius: inherit;
+		}
+
+		// Table body + fix for improper table
+
+		& tbody:first-child,
+		& tbody tr:first-child,
+		& tbody tr:first-child td:first-child,
+		& > tr:first-child,
+		& > tr:first-child td:first-child,
+		& > tr:first-child th:first-child {
+			border-top-left-radius: inherit;
+		}
+
+		& tbody:first-child,
+		& tbody tr:first-child,
+		& tbody tr:first-child td:last-child,
+		& > tr:first-child,
+		& > tr:first-child td:last-child,
+		& > tr:first-child th:last-child {
+			border-top-right-radius: inherit;
+		}
+
+		& thead + tbody tr:first-child td {
+			border-radius: 0em !important;
+		}
+
+		& tbody:last-child,
+		& tbody tr:last-child,
+		& tbody tr:last-child td:first-child,
+		& > tr:last-child,
+		& > tr:last-child td:first-child,
+		& > tr:last-child th:first-child {
+			border-bottom-left-radius: inherit;
+		}
+
+		& tbody:last-child,
+		& tbody tr:last-child,
+		& tbody tr:last-child td:last-child,
+		& > tr:last-child,
+		& > tr:last-child td:last-child,
+		& > tr:last-child th:last-child {
+			border-bottom-right-radius: inherit;
+		}
+	}
+
+	// table helper and fix
+
+	// Make a table cell a link.
+
+	& th.link,
+	& td.link { 
+		padding: 0 !important;
+
+		& > a {
+			display: block;
+			color: inherit;
+		}
+	}
+
+	& td.link > a { padding: var(--cell-padding); }	
+	& th.link > a { padding: var(--thf-padding); }
+
+
+	// Table Cell width fixer
+	/* the w-fix will fix table cells so that their width can be increased.
+	If the table has a width of 100%, the table will determine the maximum
+	width a cell can have. Otherwise if the table width is auto, you will be
+	able fully determine the width a cell. Note that width of each you give a width = given width + cell padding-left + cell padding-right. */ 
+
+	&.w-fix {
+		width: auto;
+		min-width: auto;
+		
+		& th:before,
+		& td:before {
+			content: "";
+			display: block;
+			visibility: hidden;
+			height: 0px;
+			width: inherit;
+		}
+	}
+
+	// Table cell sizes
+
+	&.mini-cells th,
+	&.mini-cells td {
+		width: 100px;
+	}
+
+	&.small-cells th,
+	&.small-cells td {
+		width: 200px;
+	}
+
+	&.medium-cells th,
+	&.medium-cells td {
+		width: 350px;
+	}
+	
+	&.big-cells th,
+	&.big-cells td {
+		width: 500px;
+	}
+
+	&.huge-cells th,
+	&.huge-cells td {
+		width: 600px;
+	}
+
+	// make a table fixed letting all cell have the same size irrespective of there content
+
+	&.fixed-layout {
+		table-layout: fixed;
+	}
+
+	// Striped table
+
+	&.striped tbody tr:nth-child(even) {
+		background-color: var(--stripe-bg-color);
+	}
+
+	// Basic table
+
+	&.basic {
+		border-style: none;
+
+		& th:first-child,
+		& td:first-child {
+			border-left-style: none;
+		}
+
+		& th:last-child,
+		& td:last-child {
+			border-right-style: none;
+		}
+
+		& tr:first-child th,
+		& tr:first-child td {
+			border-top-style: none;
+		}
+
+		& tr:last-child th,
+		& tr:last-child td {
+			border-bottom-style: none;
+		}
+
+		& thead tr:last-child th,
+		& thead tr:last-child td {
+			border-bottom-style: solid;
+		}
+
+		& tfoot tr:first-child th,
+		& tfoot tr:first-child td {
+			border-top-style: solid;
+		}
+	}
+
+	// Simple table
+
+	&.simple {
+		& th,
+		& td {
+			border-left-style: none;
+			border-right-style: none;
+		}
+	}
+
+	// clear table
+
+	&.clear {
+		border-style: none;
+
+		& th,
+		& td {
+			border-left-style: none;
+			border-right-style: none;
+		}
+
+		& thead tr:first-child th,
+		& thead tr:first-child td,
+		& > tr:first-child th {
+			border-top-style: none;
+		}
+
+		
+		& tfoot tr:last-child th,
+		& tfoot tr:last-child td,
+		& > tr:last-child th {
+			border-bottom-style: none;
+		}
+	}
+
+	// list table
+
+	&.list {
+		border-style: none;
+
+		& th,
+		& td {
+			border-style: none;
+		}
+
+		& thead tr:last-child th,
+		& thead tr:last-child td,
+		& > tr:first-child th {
+			border-bottom-width: 2px;
+			border-bottom-style: solid;
+		}
+
+		& tfoot tr:first-child th,
+		& tfoot tr:first-child td,
+		& > tr:last-child th {
+			border-top-width: 2px;
+			border-top-style: solid;
+		}
+	}
+
+	// table definition
+
+	&.definition {
+		&:not(.rounded) {
+			border-style: none;
+		}
+
+		&.simple:not(.rounded) th:first-child,
+		&.simple:not(.rounded) td:first-child {
+			border-left-style: solid;
+			border-right-style: solid;
+		}
+
+		&.simple:not(.rounded) th:last-child,
+		&.simple:not(.rounded) td:last-child {
+			border-right-style: solid;
+		}
+
+		& thead:not(.full-width) th:first-child,
+		& thead:not(.full-width) td:first-child,
+		& > tr:not(.full-width):first-child th:first-child {
+			pointer-events: none;
+			background: 0 0 !important;
+			font-weight: var(--normal-weight) !important;
+			color: var(--on-surface-v2) !important;
+			border-top: 0px none;
+			border-left: 0px none;
+		}
+
+		& thead tr:not(:last-child):not(:only-child) th:first-child,
+		& thead tr:not(:last-child):not(:only-child) td:first-child {
+			border-bottom: 0px none;
+		}
+
+		& tfoot:not(.full-width) th:first-child,
+		& tfoot:not(.full-width) td:first-child,
+		& > tr:not(.full-width):last-child th:first-child {
+			pointer-events: none;
+			background: 0 0 !important;
+			font-weight: var(--normal-weight) !important;
+			color: var(--on-surface-v2) !important;
+			border-bottom: 0px none;
+			border-left: 0px none;
+		}
+
+		& tfoot tr:not(:first-child):not(:only-child) th:first-child,
+		& tfoot tr:not(:first-child):not(:only-child) td:first-child {
+			border-top: 0px none;
+		}
+
+		&.rounded thead:not(.full-width) th:first-child,
+		&.rounded thead:not(.full-width) td:first-child,
+		&.rounded > tr:not(.full-width):first-child th:first-child {
+			box-shadow: -1px -1px 0 1px var(--surface);
+		}
+
+		&.rounded tfoot:not(.full-width) th:first-child,
+		&.rounded tfoot:not(.full-width) td:first-child,
+		&.rounded > tr:not(.full-width):last-child th:first-child {
+			box-shadow: -1px -1px 0 1px var(--surface);
+		}
+
+		& tbody td:first-child,
+		& tbody td:first-child:hover,
+		& > tr td:first-child,
+		& > tr td:first-child:hover {
+			background-color: var(--stripe-bg-color);
+			font-weight: bold;
+			color: inherit;
+		}
+	}
+
+	// borderless table
+
+	&.borderless,
+	&.borderless > thead,
+	&.borderless > thead > tr,
+	&.borderless > thead > tr > th,
+	&.borderless > thead > tr > td,
+	&.borderless > tbody,
+	&.borderless > tbody > tr,
+	&.borderless > tbody > tr > td,
+	&.borderless > tfoot,
+	&.borderless > tfoot > tr,
+	&.borderless > tfoot > tr > th,
+	&.borderless > tfoot > tr > td,
+	&.borderless > tr,
+	&.borderless > tr, > th,
+	&.borderless > tr, > td {
+		border: 0px none !important;
+	}
+
+	// table states
+
+
+	// table active state
+
+	td.active:before,
+	tr.active td:before,
+	tbody.active td:before {
+		opacity: var(--press-state);
+	}
+
+	td.disabled,
+	td[disabled],
+	tr.disabled td,
+	tr[disabled] td,
+	tbody.disabled td,
+	tbody[disabled] td {
+		pointer-events: none !important;
+		user-select: none;
+		-webkit-tap-highlight-color: transparent;
+		color: var(--on-surface-v2) !important;
+		background-color: var(--surface-v2) !important;
+	}
+
+	// Table hover
+
+	&.selectable tbody tr,
+	& tbody.selectable tr,
+	& tbody tr.selectable,
+	& tbody td.selectable {
+		transition: background-color 0.3s ease;
+	}
+
+	// default hover
+
+	&.selectable tbody tr:hover td:before,
+	tbody.selectable tr:hover td:before,
+	tbody tr.selectable:hover td:before,
+	tbody td.selectable:hover:before,
+	&.i-selectable tbody td:hover:before,
+	tbody.i-selectable td:hover:before,
+	tbody tr.i-selectable td:hover:before {
+		opacity: var(--hover-state);
+	}
+}
+
+// Scrollable table
+
+.table-scroll {
+	overflow-x: auto;
+
+	& > table { width: auto; }
+}
+
+// responsive table
+
+@media only screen and (max-width : 730px) {
+	table.responsive {
+	  	width: 100%;
+		max-width: 100%;
+		border: 0px none;
+	    border-collapse: collapse;
+		white-space: nowrap;
+	    border-spacing: 0;
+	  	display: block;
+	    position: relative;
+
+		& td:empty::before,
+		& thead tr th::before { content: '\00a0'; }
+
+		& th,
+		& td {
+			display: block;
+			min-height: 3em;
+			margin-top: 0 !important;
+			padding: var(--cell-padding) !important;
+			border: 0px none !important;
+  		}
+
+		& th {
+			text-align: right !important;
+		}
+
+		& td {
+			text-align: left !important;
+		}
+
+		& thead,
+	 	& tbody {
+			display: block;
+			position: relative;
+			width: auto;
+			white-space: nowrap;
+			border: 0px none !important;
+			border-spacing: 0;
+		}
+
+		& thead {
+			float: left;
+			border-right: 2px solid var(--bd-color) !important;
+		}
+
+		&.list th,
+		&.list tr,
+		&.list thead {
+			border-bottom: 0px none !important;
+		}
+
+		& thead tr {
+			display: block;
+		}
+
+  		& tbody {
+			overflow-x: auto;
+
+  			& tr {
+    			display: inline-block;
+    			vertical-align: top;
+  			}
+		}
+
+		& tfoot {
+			display: none !important;
+		}
+	}
+}

@@ -1,0 +1,36 @@
+/* --- IMAGE --- */
+
+.image {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+	height: auto;
+	background-color: transparent;
+	flex: 0 0 auto;
+	
+	& img,
+	& svg {
+		width: 100%;
+		height: auto;
+		border-radius: inherit;
+	}
+}
+
+.image.circular {
+	border-radius: var(--radius-full);
+	overflow: hidden;
+}
+
+.image.mingle {
+	height: 2em;
+	width: auto;
+	margin-right: 0.25em;
+}
+
+.image.avatar {
+	height: 3em;
+	width: 3em;
+
+	&.compact { height: 2em; width: 2em; }
+	&.loose { height: 4em; width: 4em; }
+}

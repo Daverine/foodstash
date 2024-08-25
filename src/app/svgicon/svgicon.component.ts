@@ -6,7 +6,10 @@ import { NgIf } from '@angular/common';
   standalone: true,
   imports: [NgIf],
   templateUrl: './svgicon.component.html',
-  styleUrl: './svgicon.component.scss'
+  styleUrl: './svgicon.component.scss',
+  host: {
+    class: 'icon',
+  }
 })
 export class SvgiconComponent {
   @Input() name;

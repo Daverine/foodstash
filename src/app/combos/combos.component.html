@@ -1,0 +1,110 @@
+<app-common-header />
+<main class="flex-column" style="gap: 3rem; padding: 2rem 0rem">
+    <section class="h-padded">
+      <div class="container-lg no-padding">
+        <div class="hero container rounded padded" style="background-color: var(--surface-v2);">
+          <div class="flex-middle">
+            <div class="container-nano no-padding">
+                <h3>
+                    Buy cheaper food supplies 
+                    <span class="primary-text">today</span>
+                </h3>
+                <p>Lorem ipsum dolor sit amet consectetur.</p>
+                <button class="button outlined basic">Shop now</button>
+            </div>
+          </div>
+          <div class="flex-middle">
+            <img
+              class="image auto-h-margined"
+              src="images/img6.png"
+              alt="hero picture"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="container">
+        <div>
+            <h4>Popular products</h4>
+            <hr />
+        </div>
+        <div class="cbox1">
+            <app-product class="open-modal" data-target="combodetails" />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+            <app-product />
+        </div>
+    </section>
+</main>
+<app-common-footer />
+
+<app-modal id="combodetails">
+  <div class="dialog container-md no-padding sm-rounded">
+    <header class="padded">
+      <div class="heading">Combo Details</div>
+    </header>
+    <hr />
+    <div class="hero">
+      <div class="padded surface-v1-bg" style="height: 100%;">
+        <img
+          class="image"
+          src="images/img1.png"
+          alt="product picture"
+        />
+      </div>
+      <div class="padded">
+        <div class="h5 semibold">Combo Package IV</div>
+        <div class="on-surface-aux">
+          <div><span class="text-color">5</span> Items</div>
+          <div><span class="text-color">4.2</span> Rating (31 Purchases)</div>
+          <div>Avalability: <span class="success-text">In Stock</span></div>
+        </div>
+        <div class="semibold">Items</div>
+        <div class="text-v1-color">
+          <table class="table selectable">
+            <tbody>
+              <tr>
+                <td>Nestle Maggi Cubes - 1x</td>
+                <td>₦ 1,750</td>
+              </tr>
+              <tr>
+                <td>Tomato and Pepper - 5x</td>
+                <td>₦ 5,050</td>
+              </tr>
+              <tr>
+                <td>Milk - 6x</td>
+                <td>₦ 3,550</td>
+              </tr>
+              <tr>
+                <td>Cornflakes - 2x</td>
+                <td>₦ 6,000</td>
+              </tr>
+              <tr>
+                <td>Spaghetti - 1x</td>
+                <td>₦ 1,050</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Total</td>
+                <td>₦ 17,400</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-modal>
